@@ -1,0 +1,64 @@
+<div class="login">
+  <div class="login__bg"></div>
+
+  <section class="login__card">
+    <div class="login__logo">
+      <div class="coin"><span>M</span></div>
+    </div>
+
+    <h1 class="login__title">Moneys</h1>
+    <p class="login__subtitle">Вход в кабинет</p>
+
+    <form class="login__form" [formGroup]="form" (ngSubmit)="submit()">
+      <mat-form-field appearance="outline">
+        <mat-label>Логин</mat-label>
+        <input matInput formControlName="login" autocomplete="username" inputmode="numeric" />
+        <mat-icon matPrefix>person</mat-icon>
+        @if (form.controls.login.touched && form.controls.login.hasError('required')) {
+          <mat-error>Введите логин</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Пароль</mat-label>
+        <input
+          matInput
+          formControlName="password"
+          [type]="hidePassword() ? 'password' : 'text'"
+          autocomplete="current-password"
+        />
+        <mat-icon matPrefix>lock</mat-icon>
+        <button
+          type="button"
+          mat-icon-button
+          matSuffix
+          (click)="togglePassword()"
+          [attr.aria-label]="hidePassword() ? 'Показать пароль' : 'Скрыть пароль'"
+        >
+          <mat-icon>{{ hidePassword() ? 'visibility' : 'visibility_off' }}</mat-icon>
+        </button>
+        @if (form.controls.password.touched && form.controls.password.hasError('required')) {
+          <mat-error>Введите пароль</mat-error>
+        }
+      </mat-form-field>
+
+      @if (error()) {
+        <div class="login__error">
+          <mat-icon>error_outline</mat-icon>
+          Неверный логин или пароль
+        </div>
+      }
+
+      <button mat-flat-button type="submit" class="login__submit" [disabled]="loading()">
+        <mat-icon>login</mat-icon>
+        Войти
+      </button>
+    </form>
+
+    <div class="login__hint">Тестовый доступ — логин <b>123</b>, пароль <b>123</b></div>
+
+    <div class="login__install">
+      <app-install-button />
+    </div>
+  </section>
+</div>

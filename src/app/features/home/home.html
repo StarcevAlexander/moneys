@@ -1,0 +1,77 @@
+<div class="home">
+  <mat-toolbar class="home__bar">
+    <div class="home__brand">
+      <div class="coin coin--sm"><span>M</span></div>
+      <span class="home__brand-name">Moneys</span>
+    </div>
+    <span class="home__spacer"></span>
+    <button mat-icon-button (click)="logout()" aria-label="Выйти">
+      <mat-icon>logout</mat-icon>
+    </button>
+  </mat-toolbar>
+
+  <main class="home__content">
+    <section class="balance">
+      <div class="balance__label">Общий баланс</div>
+      <div class="balance__value">₽ 512 900<span class="balance__cents">,00</span></div>
+      <div class="balance__row">
+        <span class="balance__user">
+          <mat-icon inline>account_circle</mat-icon>
+          {{ user()?.login }}
+        </span>
+        <span class="balance__chip">Visa •• 4242</span>
+      </div>
+    </section>
+
+    <div class="home__install">
+      <app-install-button />
+    </div>
+
+    <section class="stats container-fluid p-0">
+      <div class="row g-3">
+        @for (card of stats; track card.label) {
+          <div class="col-6 col-lg-3">
+            <article class="stat-card">
+              <div class="stat-card__icon">
+                <mat-icon>{{ card.icon }}</mat-icon>
+              </div>
+              <div class="stat-card__label">{{ card.label }}</div>
+              <div class="stat-card__value">{{ card.value }}</div>
+              <div class="stat-card__trend" [class.stat-card__trend--down]="!card.positive">
+                <mat-icon inline>{{ card.positive ? 'arrow_upward' : 'arrow_downward' }}</mat-icon>
+                {{ card.trend }}
+              </div>
+            </article>
+          </div>
+        }
+      </div>
+    </section>
+
+    <section class="transactions">
+      <header class="transactions__head">
+        <h2>Последние операции</h2>
+        <button mat-button (click)="sendTestPush()">
+          <mat-icon>notifications_active</mat-icon>
+          Тест пуша
+        </button>
+      </header>
+
+      <ul class="transactions__list">
+        @for (tx of transactions; track tx.title) {
+          <li class="tx">
+            <div class="tx__icon" [class.tx__icon--in]="tx.incoming">
+              <mat-icon>{{ tx.icon }}</mat-icon>
+            </div>
+            <div class="tx__info">
+              <div class="tx__title">{{ tx.title }}</div>
+              <div class="tx__date">{{ tx.date }}</div>
+            </div>
+            <div class="tx__amount" [class.tx__amount--in]="tx.incoming">{{ tx.amount }}</div>
+          </li>
+        }
+      </ul>
+    </section>
+
+    <footer class="home__footer">Версия {{ version }}</footer>
+  </main>
+</div>

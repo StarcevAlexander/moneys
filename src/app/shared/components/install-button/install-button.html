@@ -1,0 +1,20 @@
+@if (canInstall()) {
+  <button mat-flat-button class="install-button" (click)="onInstall()">
+    <mat-icon>install_mobile</mat-icon>
+    Установить приложение
+  </button>
+}
+
+@if (iosDialogOpen()) {
+  <div class="ios-hint" (click)="closeIosDialog()">
+    <div class="ios-hint__card" (click)="$event.stopPropagation()">
+      <h3 class="ios-hint__title">Установка на iPhone / iPad</h3>
+      <ol class="ios-hint__steps">
+        <li>Нажмите кнопку «Поделиться» <mat-icon inline>ios_share</mat-icon> в Safari.</li>
+        <li>Выберите «На экран “Домой”».</li>
+        <li>Подтвердите — иконка-монета появится на рабочем столе.</li>
+      </ol>
+      <button mat-flat-button class="ios-hint__close" (click)="closeIosDialog()">Понятно</button>
+    </div>
+  </div>
+}

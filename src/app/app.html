@@ -1,0 +1,9 @@
+@if (initializing()) {
+  <app-loader-screen label="Проверяем обновления…" hint="Готовим приложение" />
+} @else {
+  <router-outlet />
+}
+
+@if (updating()) {
+  <app-loader-screen label="Обновляем приложение…" hint="Это займёт пару секунд" />
+}

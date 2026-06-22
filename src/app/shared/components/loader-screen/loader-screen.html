@@ -1,0 +1,17 @@
+<div class="loader-screen">
+  <div class="loader-screen__glow"></div>
+
+  <div class="loader-screen__coin" aria-hidden="true">
+    <div class="coin">
+      <span class="coin__letter">M</span>
+    </div>
+    <div class="coin__ring"></div>
+  </div>
+
+  <div class="loader-screen__brand">Moneys</div>
+  <div class="loader-screen__label">{{ label() }}</div>
+
+  @if (hint(); as hintText) {
+    <div class="loader-screen__hint">{{ hintText }}</div>
+  }
+</div>

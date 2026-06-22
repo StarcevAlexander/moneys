@@ -1,0 +1,6 @@
+#!/bin/sh
+# Авто-повышение версии приложения при каждом коммите.
+# Благодаря этому service worker видит новый билд и обновляет PWA.
+node scripts/bump-version.mjs || exit 1
+node scripts/sync-version.mjs || exit 1
+git add package.json src/app/core/version.ts

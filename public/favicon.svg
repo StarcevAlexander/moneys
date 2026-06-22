@@ -1,0 +1,30 @@
+<svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+    
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="32%" r="85%">
+      <stop offset="0%" stop-color="#11633d"/>
+      <stop offset="100%" stop-color="#03150e"/>
+    </radialGradient>
+    <radialGradient id="coin" cx="38%" cy="30%" r="78%">
+      <stop offset="0%" stop-color="#fff6cf"/>
+      <stop offset="34%" stop-color="#ffd24d"/>
+      <stop offset="70%" stop-color="#e8a83a"/>
+      <stop offset="100%" stop-color="#b6781e"/>
+    </radialGradient>
+    <linearGradient id="rim" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ffeaa0"/>
+      <stop offset="100%" stop-color="#a86a18"/>
+    </linearGradient>
+    <linearGradient id="m" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#7a4a0e"/>
+      <stop offset="100%" stop-color="#5a3408"/>
+    </linearGradient>
+  </defs>
+    
+  <circle cx="32" cy="32" r="30.08" fill="url(#rim)"/>
+  <circle cx="32" cy="32" r="27.2224" fill="url(#coin)"/>
+  <circle cx="32" cy="32" r="27.2224" fill="none" stroke="#fff6d6" stroke-opacity="0.5" stroke-width="0.48128"/>
+  <circle cx="32" cy="32" r="23.7632" fill="none" stroke="#a86a18" stroke-opacity="0.45" stroke-width="0.96256" stroke-dasharray="1.504 1.8950399999999998"/>
+  <text x="32" y="32.6016" font-family="Georgia, 'Times New Roman', serif" font-size="31.584" font-weight="700" fill="url(#m)" text-anchor="middle" dominant-baseline="central">M</text>
+  <ellipse cx="23.2768" cy="19.968" rx="14.137599999999999" ry="7.8208" fill="#ffffff" opacity="0.18"/>
+  </svg>

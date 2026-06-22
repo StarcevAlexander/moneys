@@ -1,0 +1,51 @@
+.install-button {
+  --mdc-filled-button-container-color: #ffd24d;
+  --mdc-filled-button-label-text-color: #4a2f08;
+  font-weight: 600;
+  border-radius: 999px;
+  box-shadow: 0 6px 18px rgba(255, 210, 77, 0.35);
+}
+
+.ios-hint {
+  position: fixed;
+  inset: 0;
+  z-index: 1100;
+  display: grid;
+  place-items: center;
+  padding: 1.25rem;
+  background: rgba(3, 21, 14, 0.72);
+  backdrop-filter: blur(4px);
+}
+
+.ios-hint__card {
+  width: 100%;
+  max-width: 360px;
+  padding: 1.5rem;
+  border-radius: 20px;
+  background: #ffffff;
+  color: #1c2b22;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.4);
+}
+
+.ios-hint__title {
+  margin: 0 0 1rem;
+  font-size: 1.15rem;
+}
+
+.ios-hint__steps {
+  margin: 0 0 1.25rem;
+  padding-left: 1.1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  line-height: 1.4;
+}
+
+.ios-hint__steps mat-icon {
+  vertical-align: middle;
+}
+
+.ios-hint__close {
+  width: 100%;
+  --mdc-filled-button-container-color: #11633d;
+}
