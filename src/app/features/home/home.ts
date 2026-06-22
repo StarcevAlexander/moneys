@@ -23,10 +23,19 @@ export class Home {
   protected readonly version = APP_VERSION;
   protected readonly stats = STAT_CARDS;
   protected readonly transactions = TRANSACTIONS;
-  protected readonly notificationsAllowed = signal(this.notifications.permission === 'granted');
+  protected readonly testPushPending = signal(false);
 
-  sendTestPush(): void {
-    void this.notifications.notify('Moneys', 'Поступил новый заказ');
+  async sendTestPush(): Promise<void> {
+    if (this.testPushPending()) {
+      return;
+    }
+    this.testPushPending.set(true);
+    try {
+      // Пуш прилетает через 5 секунд после нажатия.
+      await this.notifications.scheduleTestNotification();
+    } finally {
+      this.testPushPending.set(false);
+    }
   }
 
   logout(): void {

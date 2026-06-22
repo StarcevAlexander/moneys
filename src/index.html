@@ -29,5 +29,17 @@
   <body>
     <app-root></app-root>
     <noscript>Для работы приложения включите JavaScript.</noscript>
+    <script>
+      // Перехватываем событие установки PWA как можно раньше — оно одноразовое
+      // и может прилететь ещё до старта Angular.
+      window.addEventListener('beforeinstallprompt', function (event) {
+        event.preventDefault();
+        window.__deferredInstallPrompt = event;
+        window.dispatchEvent(new Event('pwa-install-available'));
+      });
+      window.addEventListener('appinstalled', function () {
+        window.__deferredInstallPrompt = undefined;
+      });
+    </script>
   </body>
 </html>

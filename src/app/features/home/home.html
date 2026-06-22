@@ -50,9 +50,9 @@
     <section class="transactions">
       <header class="transactions__head">
         <h2>Последние операции</h2>
-        <button mat-button (click)="sendTestPush()">
+        <button mat-button (click)="sendTestPush()" [disabled]="testPushPending()">
           <mat-icon>notifications_active</mat-icon>
-          Тест пуша
+          {{ testPushPending() ? 'Пуш через 5 с…' : 'Тест пуша' }}
         </button>
       </header>
 

@@ -3,11 +3,13 @@ import {
   ORDER_NOTIFICATION_BODY,
   ORDER_NOTIFICATION_DELAY_MS,
   ORDER_NOTIFICATION_TITLE,
+  TEST_NOTIFICATION_DELAY_MS,
 } from '../constants';
 
 @Injectable({ providedIn: 'root' })
 export class NotificationService {
   private orderTimer?: ReturnType<typeof setTimeout>;
+  private testTimer?: ReturnType<typeof setTimeout>;
 
   get supported(): boolean {
     return 'Notification' in window;
@@ -38,6 +40,20 @@ export class NotificationService {
 
   cancelOrderNotification(): void {
     clearTimeout(this.orderTimer);
+  }
+
+  /** Запрашивает разрешение и через 5 секунд шлёт тестовый пуш. Резолвится после отправки. */
+  scheduleTestNotification(): Promise<void> {
+    return this.requestPermission().then(
+      () =>
+        new Promise<void>((resolve) => {
+          clearTimeout(this.testTimer);
+          this.testTimer = setTimeout(() => {
+            void this.notify(ORDER_NOTIFICATION_TITLE, ORDER_NOTIFICATION_BODY);
+            resolve();
+          }, TEST_NOTIFICATION_DELAY_MS);
+        }),
+    );
   }
 
   async notify(title: string, body: string): Promise<void> {

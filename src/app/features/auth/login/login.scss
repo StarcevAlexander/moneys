@@ -4,7 +4,13 @@
   display: grid;
   place-items: center;
   padding: clamp(1rem, 4vw, 2.5rem);
-  overflow: hidden;
+  // Безопасные зоны (вырез сверху, home-indicator снизу, боковые в ландшафте).
+  padding-top: max(clamp(1rem, 4vw, 2.5rem), env(safe-area-inset-top));
+  padding-bottom: max(clamp(1rem, 4vw, 2.5rem), env(safe-area-inset-bottom));
+  padding-left: max(clamp(1rem, 4vw, 2.5rem), env(safe-area-inset-left));
+  padding-right: max(clamp(1rem, 4vw, 2.5rem), env(safe-area-inset-right));
+  // Если карточка выше экрана (маленький телефон + клавиатура) — даём прокрутку.
+  overflow-y: auto;
 }
 
 .login__bg {
@@ -12,6 +18,7 @@
   inset: 0;
   background: radial-gradient(circle at 50% 18%, #11633d 0%, #062a1c 48%, #03150e 100%);
   z-index: -1;
+  overflow: hidden;
 }
 
 .login__bg::after {

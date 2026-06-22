@@ -1,6 +1,11 @@
 import { Injectable, computed, signal } from '@angular/core';
 import { BeforeInstallPromptEvent } from '../models';
 
+/** Глобальное окно с перехваченным в index.html событием установки. */
+interface InstallWindow extends Window {
+  __deferredInstallPrompt?: BeforeInstallPromptEvent;
+}
+
 @Injectable({ providedIn: 'root' })
 export class PwaInstallService {
   private readonly deferredPrompt = signal<BeforeInstallPromptEvent | undefined>(undefined);
@@ -20,6 +25,18 @@ export class PwaInstallService {
   readonly needsIosHint = computed(() => !this.installed() && this.isIos && !this.deferredPrompt());
 
   constructor() {
+    const installWindow = window as InstallWindow;
+
+    // Событие могло прилететь до старта Angular — забираем перехваченное в index.html.
+    if (installWindow.__deferredInstallPrompt) {
+      this.deferredPrompt.set(installWindow.__deferredInstallPrompt);
+    }
+    window.addEventListener('pwa-install-available', () => {
+      if (installWindow.__deferredInstallPrompt) {
+        this.deferredPrompt.set(installWindow.__deferredInstallPrompt);
+      }
+    });
+
     window.addEventListener('beforeinstallprompt', (event) => {
       event.preventDefault();
       this.deferredPrompt.set(event as BeforeInstallPromptEvent);
@@ -28,6 +45,7 @@ export class PwaInstallService {
     window.addEventListener('appinstalled', () => {
       this.installed.set(true);
       this.deferredPrompt.set(undefined);
+      installWindow.__deferredInstallPrompt = undefined;
     });
 
     window
@@ -44,6 +62,7 @@ export class PwaInstallService {
     await event.prompt();
     const choice = await event.userChoice;
     this.deferredPrompt.set(undefined);
+    (window as InstallWindow).__deferredInstallPrompt = undefined;
     if (choice.outcome === 'accepted') {
       this.installed.set(true);
       return true;
@@ -53,7 +72,7 @@ export class PwaInstallService {
 
   private detectInstalled(): boolean {
     const standalone = window.matchMedia('(display-mode: standalone)').matches;
-    const iosStandalone = (window.navigator as { standalone?: boolean }).standalone === true;
+    const iosStandalone = (window.navigator as { standalone?: boolean }).standalone ?? false;
     return standalone || iosStandalone;
   }
 

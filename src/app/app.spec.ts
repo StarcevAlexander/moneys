@@ -8,7 +8,10 @@ describe('App', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [App],
-      providers: [provideRouter(routes), provideServiceWorker('ngsw-worker.js', { enabled: false })],
+      providers: [
+        provideRouter(routes),
+        provideServiceWorker('ngsw-worker.js', { enabled: false }),
+      ],
     }).compileComponents();
   });
 
