@@ -22,4 +22,3 @@ export const TEST_NOTIFICATION_DELAY_MS = 5_000;
 
 /** Через сколько после отклика прилетает пуш с подтверждением задачи. */
 export const RESPONSE_CONFIRM_DELAY_MS = 10_000;
-export const RESPONSE_CONFIRM_TITLE = 'Moneys';

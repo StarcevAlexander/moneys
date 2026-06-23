@@ -1,9 +1,10 @@
 import { inject, Injectable, signal } from '@angular/core';
-import { RESPONSE_CONFIRM_DELAY_MS, RESPONSE_CONFIRM_TITLE } from '../../core/constants';
+import { RESPONSE_CONFIRM_DELAY_MS } from '../../core/constants';
 import { NotificationService } from '../../core/services';
 import { JobPoint } from '../jobs/jobs.models';
+import { ORDER_STATUS_TITLE, statusNotificationBody } from './applications.constants';
 import { APPLICATIONS } from './applications.data';
-import { JobApplication } from './applications.models';
+import { JobApplication, OrderStatusNotification } from './applications.models';
 
 /** Общее реактивное состояние заявок: моки + отклики пользователя. */
 @Injectable({ providedIn: 'root' })
@@ -40,7 +41,7 @@ export class ApplicationsStore {
 
     void this.notifications.requestPermission();
     const timer = setTimeout(
-      () => this.confirm(application.id, job.title),
+      () => this.applyStatusNotification({ id: application.id, status: 'assigned' }),
       RESPONSE_CONFIRM_DELAY_MS,
     );
     this.confirmTimers.set(application.id, timer);
@@ -56,10 +57,26 @@ export class ApplicationsStore {
     this._items.update((list) => list.filter((a) => a.id !== id));
   }
 
-  private confirm(id: string, title: string): void {
-    this.confirmTimers.delete(id);
-    this._items.update((list) => list.map((a) => (a.id === id ? { ...a, status: 'assigned' } : a)));
-    void this.notifications.notify(RESPONSE_CONFIRM_TITLE, `Ваш отклик на «${title}» подтверждён`);
+  /**
+   * Единый канал смены статуса: применяет входящее уведомление об изменении статуса заказа.
+   * Меняет статус в списке (реактивно для UI) и показывает пуш. Если заказа нет или
+   * статус не изменился — ничего не делает.
+   */
+  applyStatusNotification(notification: OrderStatusNotification): void {
+    this.confirmTimers.delete(notification.id);
+
+    const order = this._items().find((a) => a.id === notification.id);
+    if (!order || order.status === notification.status) {
+      return;
+    }
+
+    this._items.update((list) =>
+      list.map((a) => (a.id === notification.id ? { ...a, status: notification.status } : a)),
+    );
+    void this.notifications.notify(
+      ORDER_STATUS_TITLE,
+      statusNotificationBody(order.title, notification.status),
+    );
   }
 
   private responseId(jobId: string): string {

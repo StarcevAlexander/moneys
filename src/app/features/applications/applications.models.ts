@@ -12,3 +12,12 @@ export interface JobApplication {
   status: ApplicationStatus;
   description: string;
 }
+
+/**
+ * Входящее уведомление об изменении статуса заказа.
+ * Несёт id заказа и новый статус — применяется к store как единый канал смены статуса.
+ */
+export interface OrderStatusNotification {
+  id: string;
+  status: ApplicationStatus;
+}
