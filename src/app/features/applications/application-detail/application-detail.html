@@ -1,0 +1,50 @@
+<section class="detail">
+  <button type="button" class="detail__back" (click)="back()">
+    <mat-icon>arrow_back</mat-icon>
+    Назад
+  </button>
+
+  @if (application(); as app) {
+    <header class="detail__head">
+      <h1 class="detail__title">{{ app.title }}</h1>
+      <span class="detail__payout">{{ app.payout }}</span>
+    </header>
+
+    <div class="detail__company">{{ app.company }}</div>
+
+    <span class="detail__status detail__status--{{ app.status }}">
+      <mat-icon inline>{{ statusIcons[app.status] }}</mat-icon>
+      {{ statusLabels[app.status] }}
+    </span>
+
+    <ul class="detail__facts">
+      <li><mat-icon inline>event</mat-icon>{{ app.date }}</li>
+    </ul>
+
+    <section class="detail__block">
+      <h2 class="detail__block-title">Описание</h2>
+      <p class="detail__desc">{{ app.description }}</p>
+    </section>
+
+    <div class="detail__actions">
+      @if (jobId(); as jobId) {
+        <a mat-stroked-button [routerLink]="['/jobs', jobId]">
+          <mat-icon>work_outline</mat-icon>
+          Открыть вакансию
+        </a>
+      }
+      @if (canWithdraw()) {
+        <button mat-stroked-button class="detail__withdraw" (click)="withdraw()">
+          <mat-icon>undo</mat-icon>
+          Отозвать заявку
+        </button>
+      }
+    </div>
+  } @else {
+    <div class="detail__empty">
+      <mat-icon>search_off</mat-icon>
+      <p>Заявка не найдена</p>
+      <a mat-stroked-button routerLink="/applications">К списку заявок</a>
+    </div>
+  }
+</section>

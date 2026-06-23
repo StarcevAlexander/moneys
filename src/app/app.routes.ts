@@ -8,10 +8,37 @@ export const routes: Routes = [
     loadComponent: () => import('./features/auth/login/login').then((m) => m.Login),
   },
   {
-    path: 'home',
+    path: '',
     canActivate: [authGuard],
-    loadComponent: () => import('./features/home/home').then((m) => m.Home),
+    loadComponent: () => import('./layout/main-shell/main-shell').then((m) => m.MainShell),
+    children: [
+      {
+        path: 'jobs',
+        loadComponent: () => import('./features/jobs/jobs').then((m) => m.Jobs),
+      },
+      {
+        path: 'jobs/:id',
+        loadComponent: () =>
+          import('./features/jobs/job-detail/job-detail').then((m) => m.JobDetail),
+      },
+      {
+        path: 'applications',
+        loadComponent: () =>
+          import('./features/applications/applications').then((m) => m.Applications),
+      },
+      {
+        path: 'applications/:id',
+        loadComponent: () =>
+          import('./features/applications/application-detail/application-detail').then(
+            (m) => m.ApplicationDetail,
+          ),
+      },
+      {
+        path: 'finances',
+        loadComponent: () => import('./features/finances/finances').then((m) => m.Finances),
+      },
+      { path: '', pathMatch: 'full', redirectTo: 'jobs' },
+    ],
   },
-  { path: '', pathMatch: 'full', redirectTo: 'home' },
-  { path: '**', redirectTo: 'home' },
+  { path: '**', redirectTo: '' },
 ];

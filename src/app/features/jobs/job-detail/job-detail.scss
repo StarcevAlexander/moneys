@@ -1,0 +1,117 @@
+.detail {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.detail__back {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.3rem 0.6rem 0.3rem 0.3rem;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: #c7d2cb;
+  font-size: 0.9rem;
+  cursor: pointer;
+
+  &:hover {
+    color: #ffd24d;
+  }
+}
+
+.detail__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.detail__title {
+  margin: 0;
+  font-size: 1.45rem;
+  font-weight: 700;
+}
+
+.detail__payout {
+  flex: none;
+  color: #3ddc84;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.detail__company {
+  color: #c7d2cb;
+}
+
+.detail__facts {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+
+  li {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    color: #9fb0a7;
+    font-size: 0.9rem;
+  }
+
+  mat-icon {
+    color: #ffd24d;
+  }
+}
+
+.detail__block {
+  padding: 1rem;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 246, 207, 0.1);
+}
+
+.detail__block-title {
+  margin: 0 0 0.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.detail__desc {
+  margin: 0;
+  color: #dfe7e2;
+  line-height: 1.55;
+}
+
+.detail__apply {
+  align-self: flex-start;
+}
+
+.detail__note {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0;
+  color: #ffd24d;
+  font-size: 0.85rem;
+}
+
+.detail__empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 3rem 1rem;
+  color: #9fb0a7;
+  text-align: center;
+
+  mat-icon {
+    font-size: 48px;
+    width: 48px;
+    height: 48px;
+    color: #7f928a;
+  }
+}

@@ -1,0 +1,43 @@
+<section class="detail">
+  <button type="button" class="detail__back" (click)="back()">
+    <mat-icon>arrow_back</mat-icon>
+    Назад
+  </button>
+
+  @if (job(); as job) {
+    <header class="detail__head">
+      <h1 class="detail__title">{{ job.title }}</h1>
+      <span class="detail__payout">{{ job.payout }}</span>
+    </header>
+
+    <div class="detail__company">{{ job.company }}</div>
+
+    <ul class="detail__facts">
+      <li><mat-icon inline>place</mat-icon>{{ job.address }}</li>
+      <li><mat-icon inline>schedule</mat-icon>{{ job.schedule }}</li>
+    </ul>
+
+    <section class="detail__block">
+      <h2 class="detail__block-title">Описание</h2>
+      <p class="detail__desc">{{ job.description }}</p>
+    </section>
+
+    <button mat-flat-button class="detail__apply" (click)="respond()" [disabled]="responded()">
+      <mat-icon>{{ responded() ? 'check' : 'send' }}</mat-icon>
+      {{ responded() ? 'Отклик отправлен' : 'Откликнуться' }}
+    </button>
+
+    @if (responded()) {
+      <p class="detail__note">
+        <mat-icon inline>info</mat-icon>
+        Заявка ожидает подтверждения — уведомление придёт в приложение.
+      </p>
+    }
+  } @else {
+    <div class="detail__empty">
+      <mat-icon>search_off</mat-icon>
+      <p>Задача не найдена</p>
+      <a mat-stroked-button routerLink="/jobs">К списку вакансий</a>
+    </div>
+  }
+</section>

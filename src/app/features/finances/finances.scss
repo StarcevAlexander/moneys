@@ -1,0 +1,186 @@
+.fin {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.fin__title {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.fin__subtitle {
+  margin: 0.2rem 0 0;
+  color: #9fb0a7;
+  font-size: 0.9rem;
+}
+
+.fin-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  height: 100%;
+  padding: 0.9rem 1rem;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 246, 207, 0.1);
+
+  mat-icon {
+    margin-bottom: 0.2rem;
+    color: #9fb0a7;
+  }
+}
+
+.fin-card__value {
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.fin-card__label {
+  color: #9fb0a7;
+  font-size: 0.8rem;
+}
+
+.fin-card--green mat-icon {
+  color: #3ddc84;
+}
+
+.fin-card--gold mat-icon {
+  color: #ffd24d;
+}
+
+.fin__section-title {
+  margin: 0 0 0.6rem;
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+
+.fin__chart-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+  margin-bottom: 0.6rem;
+
+  .fin__section-title {
+    margin: 0;
+  }
+}
+
+.fin__periods {
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.fin__total {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.fin__total-value {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #3ddc84;
+}
+
+.fin__total-label {
+  color: #9fb0a7;
+  font-size: 0.85rem;
+}
+
+.fin__chart-box {
+  height: 380px;
+  padding: 0.75rem;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 246, 207, 0.1);
+}
+
+// На узких экранах легенда переносится на больше строк — добавляем высоту.
+@media (max-width: 380px) {
+  .fin__chart-box {
+    height: 420px;
+  }
+}
+
+.fin__payments {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.pay-list {
+  list-style: none;
+  margin: 0 0 0.5rem;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.pay {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 0.9rem;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.pay__icon {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  flex: none;
+  border-radius: 50%;
+
+  mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+  }
+}
+
+.pay__icon--pending {
+  background: rgba(255, 210, 77, 0.16);
+  color: #ffd24d;
+}
+
+.pay__icon--paid {
+  background: rgba(61, 220, 132, 0.16);
+  color: #3ddc84;
+}
+
+.pay__info {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.pay__title {
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pay__date {
+  margin-top: 0.1rem;
+  color: #9fb0a7;
+  font-size: 0.8rem;
+}
+
+.pay__amount {
+  flex: none;
+  font-weight: 700;
+  color: #ffd24d;
+  white-space: nowrap;
+}
+
+.pay__amount--paid {
+  color: #3ddc84;
+}

@@ -1,0 +1,76 @@
+<section class="fin">
+  <header class="fin__head">
+    <h1 class="fin__title">Финансы</h1>
+    <p class="fin__subtitle">Выплаты и статистика дохода</p>
+  </header>
+
+  <div class="fin__summary container-fluid p-0">
+    <div class="row g-3">
+      @for (card of summary; track card.label) {
+        <div class="col-6">
+          <article class="fin-card fin-card--{{ card.accent }}">
+            <mat-icon>{{ card.icon }}</mat-icon>
+            <div class="fin-card__value">{{ card.value }}</div>
+            <div class="fin-card__label">{{ card.label }}</div>
+          </article>
+        </div>
+      }
+    </div>
+  </div>
+
+  <section class="fin__chart">
+    <div class="fin__chart-head">
+      <h2 class="fin__section-title">Доход</h2>
+      <mat-button-toggle-group
+        class="fin__periods"
+        [value]="period()"
+        (change)="setPeriod($event.value)"
+        hideSingleSelectionIndicator
+        aria-label="Период"
+      >
+        <mat-button-toggle value="week">Неделя</mat-button-toggle>
+        <mat-button-toggle value="month">Месяц</mat-button-toggle>
+        <mat-button-toggle value="year">Год</mat-button-toggle>
+      </mat-button-toggle-group>
+    </div>
+
+    <div class="fin__total">
+      <span class="fin__total-value">₽ {{ periodTotal() | number: '1.0-0' }}</span>
+      <span class="fin__total-label">{{ periodLabel() }}</span>
+    </div>
+
+    <div class="fin__chart-box">
+      <app-chart [option]="chartOption()" />
+    </div>
+  </section>
+
+  <section class="fin__payments">
+    <h2 class="fin__section-title">Ожидаемые выплаты</h2>
+    <ul class="pay-list">
+      @for (p of pendingPayments; track p.id) {
+        <li class="pay">
+          <div class="pay__icon pay__icon--pending"><mat-icon>schedule</mat-icon></div>
+          <div class="pay__info">
+            <div class="pay__title">{{ p.title }}</div>
+            <div class="pay__date">{{ p.date }}</div>
+          </div>
+          <div class="pay__amount">₽ {{ p.amount | number: '1.0-0' }}</div>
+        </li>
+      }
+    </ul>
+
+    <h2 class="fin__section-title">Проведённые</h2>
+    <ul class="pay-list">
+      @for (p of paidPayments; track p.id) {
+        <li class="pay">
+          <div class="pay__icon pay__icon--paid"><mat-icon>check</mat-icon></div>
+          <div class="pay__info">
+            <div class="pay__title">{{ p.title }}</div>
+            <div class="pay__date">{{ p.date }}</div>
+          </div>
+          <div class="pay__amount pay__amount--paid">₽ {{ p.amount | number: '1.0-0' }}</div>
+        </li>
+      }
+    </ul>
+  </section>
+</section>

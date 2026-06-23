@@ -1,0 +1,64 @@
+<section class="apps">
+  <header class="apps__head">
+    <h1 class="apps__title">Мои заявки</h1>
+    <p class="apps__subtitle">{{ applications().length }} заявок · занятость на календаре</p>
+  </header>
+
+  <mat-card class="apps__calendar-card">
+    <mat-calendar
+      [selected]="selectedDate()"
+      (selectedChange)="onSelect($event)"
+      [dateClass]="dateClass"
+    />
+    <div class="apps__legend">
+      <span class="apps__legend-dot"></span>
+      День с заявкой
+    </div>
+  </mat-card>
+
+  @let dayApps = applicationsOn(selectedDate());
+  <section class="apps__day">
+    <h2 class="apps__day-title">{{ selectedDate() | date: 'd MMMM, EEEE' }}</h2>
+    @if (dayApps.length) {
+      <ul class="apps__day-list">
+        @for (app of dayApps; track app.id) {
+          <li>
+            <a class="apps__day-item" [routerLink]="['/applications', app.id]">
+              <mat-icon class="apps__day-icon apps__day-icon--{{ app.status }}">
+                {{ statusIcons[app.status] }}
+              </mat-icon>
+              <span class="apps__day-name">{{ app.title }}</span>
+              <span class="apps__day-payout">{{ app.payout }}</span>
+              <mat-icon class="apps__day-arrow">chevron_right</mat-icon>
+            </a>
+          </li>
+        }
+      </ul>
+    } @else {
+      <p class="apps__empty">На этот день заявок нет — выходной, командир.</p>
+    }
+  </section>
+
+  <section class="apps__all">
+    <h2 class="apps__all-title">Все заявки</h2>
+    <ul class="apps__list">
+      @for (app of applications(); track app.id) {
+        <li>
+          <a class="app-card app-card--{{ app.status }}" [routerLink]="['/applications', app.id]">
+            <div class="app-card__icon">
+              <mat-icon>{{ statusIcons[app.status] }}</mat-icon>
+            </div>
+            <div class="app-card__body">
+              <div class="app-card__title">{{ app.title }}</div>
+              <div class="app-card__company">{{ app.company }} · {{ app.date }}</div>
+            </div>
+            <div class="app-card__side">
+              <span class="app-card__payout">{{ app.payout }}</span>
+              <span class="app-card__status">{{ statusLabels[app.status] }}</span>
+            </div>
+          </a>
+        </li>
+      }
+    </ul>
+  </section>
+</section>

@@ -1,0 +1,44 @@
+<section class="jobs">
+  <header class="jobs__head">
+    <h1 class="jobs__title">Поиск работы</h1>
+    <p class="jobs__subtitle">Иркутск · {{ jobs.length }} точек на карте</p>
+  </header>
+
+  <div class="jobs__map-wrap">
+    @if (hasApiKey) {
+      <div #map class="jobs__map"></div>
+      @if (mapLoading()) {
+        <div class="jobs__map-overlay">Загружаем карту…</div>
+      }
+      @if (mapError()) {
+        <div class="jobs__map-overlay">Не удалось загрузить карту</div>
+      }
+    } @else {
+      <div class="jobs__map-placeholder">
+        <mat-icon>map</mat-icon>
+        <p>Карта Иркутска появится после добавления ключа Яндекс.Карт</p>
+        <code>YANDEX_MAPS_API_KEY</code>
+      </div>
+    }
+  </div>
+
+  <p class="jobs__hint">
+    <mat-icon inline>touch_app</mat-icon>
+    Нажмите точку на карте или вакансию в списке
+  </p>
+
+  <ul class="jobs__list">
+    @for (job of jobs; track job.id) {
+      <li>
+        <a class="jobs__item" [routerLink]="['/jobs', job.id]">
+          <div class="jobs__item-main">
+            <div class="jobs__item-title">{{ job.title }}</div>
+            <div class="jobs__item-addr">{{ job.address }}</div>
+          </div>
+          <div class="jobs__item-payout">{{ job.payout }}</div>
+          <mat-icon class="jobs__item-arrow">chevron_right</mat-icon>
+        </a>
+      </li>
+    }
+  </ul>
+</section>

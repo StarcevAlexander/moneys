@@ -1,5 +1,5 @@
 import { Injectable, computed, signal } from '@angular/core';
-import { AUTH_STORAGE_KEY, MOCK_LOGIN, MOCK_PASSWORD } from '../constants';
+import { AUTH_STORAGE_KEY, MOCK_LOGIN, MOCK_PASSWORD, SESSION_TTL_MS } from '../constants';
 import { AuthSession, Credentials } from '../models';
 
 @Injectable({ providedIn: 'root' })
@@ -32,9 +32,39 @@ export class AuthService {
   private restore(): AuthSession | undefined {
     try {
       const raw = localStorage.getItem(AUTH_STORAGE_KEY);
-      return raw ? (JSON.parse(raw) as AuthSession) : undefined;
+      if (!raw) {
+        return undefined;
+      }
+
+      const session = JSON.parse(raw) as unknown;
+      if (!this.isValidSession(session) || this.isExpired(session)) {
+        localStorage.removeItem(AUTH_STORAGE_KEY);
+        return undefined;
+      }
+
+      return session;
     } catch {
+      localStorage.removeItem(AUTH_STORAGE_KEY);
       return undefined;
     }
+  }
+
+  /** Сессия валидна, если это объект с непустым login и числовым loggedInAt. */
+  private isValidSession(value: unknown): value is AuthSession {
+    if (typeof value !== 'object' || value === null) {
+      return false;
+    }
+    const session = value as Partial<AuthSession>;
+    return (
+      typeof session.login === 'string' &&
+      session.login.length > 0 &&
+      typeof session.loggedInAt === 'number' &&
+      Number.isFinite(session.loggedInAt)
+    );
+  }
+
+  /** Сессия протухла, если с момента входа прошло больше SESSION_TTL_MS. */
+  private isExpired(session: AuthSession): boolean {
+    return Date.now() - session.loggedInAt > SESSION_TTL_MS;
   }
 }

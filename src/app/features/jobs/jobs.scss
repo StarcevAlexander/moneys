@@ -1,0 +1,137 @@
+.jobs {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.jobs__title {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.jobs__subtitle {
+  margin: 0.2rem 0 0;
+  color: #9fb0a7;
+  font-size: 0.9rem;
+}
+
+.jobs__map-wrap {
+  position: relative;
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+}
+
+.jobs__map {
+  width: 100%;
+  height: 340px;
+}
+
+.jobs__map-overlay {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: rgba(3, 21, 14, 0.55);
+  color: #f4f6f3;
+  font-size: 0.9rem;
+  pointer-events: none;
+}
+
+.jobs__map-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 2.5rem 1.5rem;
+  text-align: center;
+  background: linear-gradient(160deg, #0d4f31, #062a1c);
+  color: #c7d2cb;
+
+  mat-icon {
+    font-size: 48px;
+    width: 48px;
+    height: 48px;
+    color: #ffd24d;
+  }
+
+  code {
+    padding: 0.2rem 0.5rem;
+    border-radius: 6px;
+    background: rgba(0, 0, 0, 0.35);
+    color: #ffd24d;
+    font-size: 0.8rem;
+  }
+}
+
+.jobs__hint {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin: -0.4rem 0 0;
+  color: #9fb0a7;
+  font-size: 0.82rem;
+
+  mat-icon {
+    color: #ffd24d;
+  }
+}
+
+.jobs__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.jobs__item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.85rem 1rem;
+  border: 1px solid rgba(255, 246, 207, 0.1);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.03);
+  color: inherit;
+  text-decoration: none;
+  transition:
+    border-color 0.18s ease,
+    background-color 0.18s ease;
+
+  &:hover {
+    border-color: rgba(255, 210, 77, 0.5);
+    background: rgba(255, 210, 77, 0.08);
+  }
+}
+
+.jobs__item-main {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.jobs__item-title {
+  font-weight: 600;
+}
+
+.jobs__item-addr {
+  margin-top: 0.15rem;
+  color: #9fb0a7;
+  font-size: 0.82rem;
+}
+
+.jobs__item-payout {
+  flex: none;
+  color: #3ddc84;
+  font-weight: 700;
+  font-size: 0.9rem;
+  white-space: nowrap;
+}
+
+.jobs__item-arrow {
+  flex: none;
+  color: #7f928a;
+}

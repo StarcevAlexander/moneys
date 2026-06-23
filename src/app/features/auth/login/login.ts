@@ -58,6 +58,6 @@ export class Login {
 
     // После входа — через 10 секунд прилетит пуш «Поступил новый заказ».
     void this.notifications.scheduleOrderNotification();
-    void this.router.navigate(['/home']);
+    void this.router.navigate(['/jobs']);
   }
 }

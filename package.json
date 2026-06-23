@@ -1,9 +1,9 @@
 {
   "name": "moneys",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "scripts": {
     "ng": "ng",
-    "start": "ng serve",
+    "start": "ng serve --o",
     "prebuild": "node scripts/sync-version.mjs",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
@@ -27,6 +27,7 @@
     "@angular/service-worker": "^21.2.0",
     "bootstrap": "^5.3.8",
     "bootstrap-icons": "^1.13.1",
+    "echarts": "^6.1.0",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0"
   },

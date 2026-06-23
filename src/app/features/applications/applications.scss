@@ -1,0 +1,239 @@
+.apps {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.apps__title {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.apps__subtitle {
+  margin: 0.2rem 0 0;
+  color: #9fb0a7;
+  font-size: 0.9rem;
+}
+
+.apps__calendar-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0.5rem 0.5rem 0.75rem;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 246, 207, 0.12);
+}
+
+// Не даём календарю растягиваться на всю ширину контейнера на десктопе.
+.apps__calendar-card mat-calendar {
+  display: block;
+  width: 100%;
+  max-width: 340px;
+}
+
+.apps__legend {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.25rem 0.75rem 0;
+  color: #9fb0a7;
+  font-size: 0.8rem;
+}
+
+.apps__legend-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: transparent;
+  border: 1.5px solid rgba(255, 210, 77, 0.85);
+}
+
+// Маркер занятого дня — тонкое золотое кольцо вокруг числа.
+// Кольцо лежит внутри стандартной круглой ячейки, поэтому не налезает на соседей.
+::ng-deep .cal-busy .mat-calendar-body-cell-content {
+  border: 1.5px solid rgba(255, 210, 77, 0.85);
+}
+
+// На выбранном/сегодняшнем дне кольцо убираем — там своя заливка/обводка Material.
+::ng-deep .cal-busy .mat-calendar-body-cell-content.mat-calendar-body-selected {
+  border-color: transparent;
+}
+
+.apps__day-title {
+  margin: 0 0 0.6rem;
+  font-size: 1.05rem;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.apps__day-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.apps__day-item {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.7rem 0.9rem;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.04);
+  color: inherit;
+  text-decoration: none;
+  transition: background-color 0.18s ease;
+
+  &:hover {
+    background: rgba(255, 210, 77, 0.1);
+  }
+}
+
+.apps__day-name {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.apps__day-arrow {
+  flex: none;
+  color: #7f928a;
+}
+
+.apps__day-payout {
+  flex: none;
+  color: #3ddc84;
+  font-weight: 700;
+}
+
+.apps__empty {
+  margin: 0;
+  padding: 1rem;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.03);
+  color: #9fb0a7;
+  text-align: center;
+}
+
+.apps__all-title {
+  margin: 0 0 0.6rem;
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+
+.apps__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.app-card {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.85rem 1rem;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.03);
+  border-left: 3px solid #7f928a;
+  color: inherit;
+  text-decoration: none;
+  transition: background-color 0.18s ease;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.06);
+  }
+}
+
+.app-card__icon {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  flex: none;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.06);
+
+  mat-icon {
+    color: #c7d2cb;
+  }
+}
+
+.app-card__body {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.app-card__title {
+  font-weight: 600;
+}
+
+.app-card__company {
+  margin-top: 0.15rem;
+  color: #9fb0a7;
+  font-size: 0.82rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.app-card__side {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.15rem;
+}
+
+.app-card__payout {
+  color: #3ddc84;
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.app-card__status {
+  font-size: 0.74rem;
+  color: #9fb0a7;
+}
+
+.apps__day-icon--awaiting,
+.apps__day-icon--requested {
+  color: #ffd24d;
+}
+
+.apps__day-icon--assigned {
+  color: #3ddc84;
+}
+
+.apps__day-icon--completed {
+  color: #4dabf7;
+}
+
+.apps__day-icon--rejected {
+  color: #f06595;
+}
+
+.app-card--awaiting {
+  border-left-color: #ffd24d;
+}
+
+.app-card--assigned {
+  border-left-color: #3ddc84;
+}
+
+.app-card--requested {
+  border-left-color: #ffd24d;
+}
+
+.app-card--completed {
+  border-left-color: #4dabf7;
+}
+
+.app-card--rejected {
+  border-left-color: #f06595;
+}
