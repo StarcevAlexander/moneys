@@ -2,9 +2,76 @@ import { AdminOrder, ManagedUser } from './admin.models';
 
 /** Стартовый список пользователей. Первый — штатный работник с учёткой «123». */
 export const DEFAULT_USERS: ManagedUser[] = [
-  { id: 'user-worker', login: '123', fullName: 'Иванов Иван Иванович', active: true },
-  { id: 'user-petrov', login: 'petrov', fullName: 'Петров Пётр Петрович', active: true },
-  { id: 'user-sidorova', login: 'sidorova', fullName: 'Сидорова Анна Сергеевна', active: true },
+  {
+    id: 'user-worker',
+    login: '123',
+    fullName: 'Иванов Иван Иванович',
+    city: 'Иркутск',
+    active: true,
+  },
+  {
+    id: 'user-petrov',
+    login: 'petrov',
+    fullName: 'Петров Пётр Петрович',
+    city: 'Ангарск',
+    active: true,
+  },
+  {
+    id: 'user-sidorova',
+    login: 'sidorova',
+    fullName: 'Сидорова Анна Сергеевна',
+    city: 'Шелехов',
+    active: true,
+  },
+  {
+    id: 'user-kuznetsov',
+    login: 'kuznetsov',
+    fullName: 'Кузнецов Дмитрий Олегович',
+    city: 'Братск',
+    active: true,
+  },
+  {
+    id: 'user-smirnova',
+    login: 'smirnova',
+    fullName: 'Смирнова Елена Викторовна',
+    city: 'Усолье-Сибирское',
+    active: true,
+  },
+  {
+    id: 'user-popov',
+    login: 'popov',
+    fullName: 'Попов Андрей Сергеевич',
+    city: 'Усть-Илимск',
+    active: true,
+  },
+  {
+    id: 'user-vasileva',
+    login: 'vasileva',
+    fullName: 'Васильева Ольга Павловна',
+    city: 'Черемхово',
+    active: false,
+  },
+  {
+    id: 'user-morozov',
+    login: 'morozov',
+    fullName: 'Морозов Игорь Николаевич',
+    city: 'Саянск',
+    active: true,
+  },
+  {
+    id: 'user-novikova',
+    login: 'novikova',
+    fullName: 'Новикова Татьяна Юрьевна',
+    city: 'Тулун',
+    active: true,
+  },
+  {
+    id: 'user-fedorov',
+    login: 'fedorov',
+    fullName: 'Фёдоров Максим Алексеевич',
+    city: 'Зима',
+    active: true,
+  },
 ];
 
 /** Стартовый список заявок. */

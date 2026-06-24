@@ -1,6 +1,8 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormsModule } from '@angular/forms';
+import { form, required, FormField } from '@angular/forms/signals';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -27,13 +29,15 @@ import { AdminStore } from '../admin.store';
 @Component({
   selector: 'app-admin-orders',
   imports: [
-    ReactiveFormsModule,
+    FormsModule,
+    FormField,
     MatCardModule,
     MatButtonModule,
     MatIconModule,
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
+    MatAutocompleteModule,
   ],
   templateUrl: './admin-orders.html',
   changeDetection: ChangeDetectionStrategy.Eager,
@@ -41,49 +45,82 @@ import { AdminStore } from '../admin.store';
 })
 export class AdminOrders {
   private readonly store = inject(AdminStore);
-  private readonly fb = inject(FormBuilder);
   private readonly snackBar = inject(MatSnackBar);
 
-  protected readonly orders = this.store.orders;
+  private readonly allUsers = this.store.users;
+  protected readonly totalOrders = this.store.orders;
   protected readonly users = this.store.assignableUsers;
   protected readonly statusLabels = ADMIN_ORDER_STATUS_LABELS;
   protected readonly statusIcons = ADMIN_ORDER_STATUS_ICONS;
   protected readonly statuses = ADMIN_ORDER_STATUSES;
   protected readonly formOpen = signal(false);
 
-  // Поиск исполнителя в выпадашке: сырой ввод + значение после дебаунса.
+  // Фильтр заявок по статусу ('all' — все статусы).
+  protected readonly statusFilter = signal<AdminOrderStatus | 'all'>('all');
+  protected readonly visibleOrders = computed(() => {
+    const status = this.statusFilter();
+    const all = this.store.orders();
+    return status === 'all' ? all : all.filter((o) => o.status === status);
+  });
+  /** Количество заявок по каждому статусу — для подписей переключателя. */
+  protected readonly counts = computed(() => {
+    const acc: Record<AdminOrderStatus, number> = {
+      open: 0,
+      assigned: 0,
+      in_progress: 0,
+      done: 0,
+      paid: 0,
+    };
+    for (const order of this.store.orders()) {
+      acc[order.status]++;
+    }
+    return acc;
+  });
+
+  // Поиск исполнителя в автокомплите: сырой ввод + значение после дебаунса (300 мс).
   private readonly rawQuery = signal('');
-  protected readonly query = this.rawQuery.asReadonly();
   private readonly debouncedQuery = toSignal(
     toObservable(this.rawQuery).pipe(debounceTime(ASSIGN_SEARCH_DEBOUNCE_MS)),
     { initialValue: '' },
   );
 
-  protected readonly form = this.fb.nonNullable.group({
-    title: ['', Validators.required],
-    company: ['', Validators.required],
-    address: [''],
-    payout: [''],
-    schedule: [''],
-    description: [''],
+  // Сигнальная форма создания заявки.
+  private readonly newOrder = signal({
+    title: '',
+    company: '',
+    address: '',
+    payout: '',
+    schedule: '',
+    description: '',
   });
+  protected readonly form = form(this.newOrder, (path) => {
+    required(path.title, { message: 'Укажите название' });
+    required(path.company, { message: 'Укажите компанию' });
+  });
+
+  /** Подпись выбранного статуса для пустого состояния. */
+  statusFilterLabel(): string {
+    const status = this.statusFilter();
+    return status === 'all' ? '' : this.statusLabels[status];
+  }
 
   toggleForm(): void {
     this.formOpen.update((v) => !v);
   }
 
-  /**
-   * Кандидаты на назначение с учётом поискового запроса (по ФИО и логину).
-   * Назначенный исполнитель всегда в списке — чтобы селект показывал текущее значение.
-   */
+  /** Имя назначенного исполнителя (пустая строка, если не назначен). */
+  assigneeName(order: AdminOrder): string {
+    return this.allUsers().find((u) => u.id === order.assignedUserId)?.fullName ?? '';
+  }
+
+  /** Кандидаты на назначение с учётом поискового запроса (по ФИО и логину, дебаунс 300 мс). */
   assignableFor(order: AdminOrder): ManagedUser[] {
     const q = this.debouncedQuery().trim().toLowerCase();
+    if (!q) {
+      return this.users();
+    }
     return this.users().filter(
-      (u) =>
-        u.id === order.assignedUserId ||
-        !q ||
-        u.fullName.toLowerCase().includes(q) ||
-        u.login.toLowerCase().includes(q),
+      (u) => u.fullName.toLowerCase().includes(q) || u.login.toLowerCase().includes(q),
     );
   }
 
@@ -96,13 +133,14 @@ export class AdminOrders {
   }
 
   createOrder(): void {
-    if (this.form.invalid) {
-      this.form.markAllAsTouched();
+    if (this.form().invalid()) {
+      this.form.title().markAsTouched();
+      this.form.company().markAsTouched();
       return;
     }
 
-    this.store.addOrder(this.form.getRawValue());
-    this.form.reset();
+    this.store.addOrder(this.newOrder());
+    this.form().reset();
     this.formOpen.set(false);
     this.snackBar.open(ORDER_CREATED_MESSAGE, undefined, { duration: 2500 });
   }
@@ -115,8 +153,16 @@ export class AdminOrders {
     });
   }
 
-  onStatusChange(orderId: string, status: AdminOrderStatus): void {
-    this.store.setStatus(orderId, status);
+  /** Статус доступен, если это текущий или соседний по порядку (±1 шаг). */
+  isStatusReachable(order: AdminOrder, status: AdminOrderStatus): boolean {
+    return Math.abs(this.statuses.indexOf(status) - this.statuses.indexOf(order.status)) <= 1;
+  }
+
+  onStatusChange(order: AdminOrder, status: AdminOrderStatus): void {
+    if (status === order.status || !this.isStatusReachable(order, status)) {
+      return;
+    }
+    this.store.setStatus(order.id, status);
     this.snackBar.open(ORDER_STATUS_CHANGED_MESSAGE, undefined, { duration: 2000 });
   }
 

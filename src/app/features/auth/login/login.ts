@@ -1,5 +1,6 @@
 import { Component, inject, signal, ChangeDetectionStrategy } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormsModule } from '@angular/forms';
+import { form, required, FormField } from '@angular/forms/signals';
 import { Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -17,7 +18,8 @@ import { InstallButton } from '../../../shared/components/install-button/install
 @Component({
   selector: 'app-login',
   imports: [
-    ReactiveFormsModule,
+    FormsModule,
+    FormField,
     MatFormFieldModule,
     MatInputModule,
     MatButtonModule,
@@ -29,7 +31,6 @@ import { InstallButton } from '../../../shared/components/install-button/install
   styleUrl: './login.scss',
 })
 export class Login {
-  private readonly fb = inject(FormBuilder);
   private readonly auth = inject(AuthService);
   private readonly notifications = inject(NotificationService);
   private readonly router = inject(Router);
@@ -44,9 +45,10 @@ export class Login {
   protected readonly adminLogin = MOCK_ADMIN_LOGIN;
   protected readonly adminPassword = MOCK_ADMIN_PASSWORD;
 
-  protected readonly form = this.fb.nonNullable.group({
-    login: ['', Validators.required],
-    password: ['', Validators.required],
+  protected readonly credentials = signal({ login: '', password: '' });
+  protected readonly loginForm = form(this.credentials, (path) => {
+    required(path.login, { message: 'Введите логин' });
+    required(path.password, { message: 'Введите пароль' });
   });
 
   togglePassword(): void {
@@ -54,18 +56,19 @@ export class Login {
   }
 
   submit(): void {
-    if (this.form.invalid) {
-      this.form.markAllAsTouched();
+    if (this.loginForm().invalid()) {
+      this.loginForm.login().markAsTouched();
+      this.loginForm.password().markAsTouched();
       return;
     }
 
     this.loading.set(true);
-    const ok = this.auth.login(this.form.getRawValue());
+    const ok = this.auth.login(this.credentials());
 
     if (!ok) {
       this.error.set(true);
       this.loading.set(false);
-      this.form.controls.password.reset();
+      this.loginForm.password().reset();
       return;
     }
 

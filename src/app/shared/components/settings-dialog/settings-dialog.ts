@@ -1,5 +1,6 @@
 import { Component, computed, inject, signal, ChangeDetectionStrategy } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormsModule } from '@angular/forms';
+import { form, maxLength, minLength, required, FormField } from '@angular/forms/signals';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -16,11 +17,12 @@ import {
 } from '../../../features/admin/admin.constants';
 import { AdminStore } from '../../../features/admin/admin.store';
 
-/** Диалог настроек: профиль, тема оформления и обращение в техподдержку. */
+/** Диалог настроек: профиль, реквизиты, тема оформления и обращение в техподдержку. */
 @Component({
   selector: 'app-settings-dialog',
   imports: [
-    ReactiveFormsModule,
+    FormsModule,
+    FormField,
     MatDialogModule,
     MatTabsModule,
     MatFormFieldModule,
@@ -33,7 +35,6 @@ import { AdminStore } from '../../../features/admin/admin.store';
   styleUrl: './settings-dialog.scss',
 })
 export class SettingsDialog {
-  private readonly fb = inject(FormBuilder);
   private readonly profileService = inject(ProfileService);
   private readonly themeService = inject(ThemeService);
   private readonly auth = inject(AuthService);
@@ -43,7 +44,6 @@ export class SettingsDialog {
 
   protected readonly themes = this.themeService.options;
   protected readonly currentTheme = this.themeService.current;
-  protected readonly supportSending = signal(false);
 
   /** Запись пользователя для текущего логина — источник его реквизитов. */
   protected readonly bankUser = computed(() => {
@@ -52,35 +52,28 @@ export class SettingsDialog {
   });
   protected readonly hasBank = computed(() => !!this.bankUser());
 
-  protected readonly bankForm = this.fb.nonNullable.group({
-    recipient: [''],
-    bankName: [''],
-    cardNumber: [''],
-    accountNumber: [''],
-    bik: [''],
+  private readonly profile = signal(this.profileService.profile());
+  protected readonly profileForm = form(this.profile, (path) => {
+    maxLength(path.passportSeries, 4);
+    maxLength(path.passportNumber, 6);
   });
 
-  protected readonly profileForm = this.fb.nonNullable.group({
-    lastName: [''],
-    firstName: [''],
-    middleName: [''],
-    passportSeries: [''],
-    passportNumber: [''],
-    passportIssuedBy: [''],
-    passportIssuedAt: [''],
-  });
+  private readonly bank = signal({ ...EMPTY_BANK_DETAILS, ...this.bankUser()?.bankDetails });
+  protected readonly bankForm = form(this.bank);
 
-  protected readonly supportForm = this.fb.nonNullable.group({
-    message: ['', [Validators.required, Validators.minLength(10)]],
+  private readonly support = signal({ message: '' });
+  protected readonly supportForm = form(this.support, (path) => {
+    required(path.message, { message: 'Введите сообщение' });
+    minLength(path.message, 10, { message: 'Минимум 10 символов' });
   });
-
-  constructor() {
-    this.profileForm.setValue(this.profileService.profile());
-    this.bankForm.patchValue({ ...EMPTY_BANK_DETAILS, ...this.bankUser()?.bankDetails });
-  }
 
   selectTheme(theme: ThemeId): void {
     this.themeService.setTheme(theme);
+  }
+
+  saveProfile(): void {
+    this.profileService.save(this.profile());
+    this.snackBar.open(PROFILE_SAVED_MESSAGE, undefined, { duration: 2500 });
   }
 
   saveBank(): void {
@@ -88,25 +81,18 @@ export class SettingsDialog {
     if (!user) {
       return;
     }
-    this.adminStore.updateBankDetails(user.id, this.bankForm.getRawValue());
+    this.adminStore.updateBankDetails(user.id, this.bank());
     this.snackBar.open(BANK_DETAILS_SAVED_MESSAGE, undefined, { duration: 2000 });
   }
 
-  saveProfile(): void {
-    this.profileService.save(this.profileForm.getRawValue());
-    this.snackBar.open(PROFILE_SAVED_MESSAGE, undefined, { duration: 2500 });
-  }
-
   sendSupport(): void {
-    if (this.supportForm.invalid) {
-      this.supportForm.markAllAsTouched();
+    if (this.supportForm().invalid()) {
+      this.supportForm.message().markAsTouched();
       return;
     }
 
     // Бэка нет — имитируем отправку и подтверждаем приём обращения.
-    this.supportSending.set(true);
-    this.supportForm.reset();
-    this.supportSending.set(false);
+    this.supportForm().reset();
     this.snackBar.open(SUPPORT_SENT_BODY, undefined, { duration: 3000 });
   }
 

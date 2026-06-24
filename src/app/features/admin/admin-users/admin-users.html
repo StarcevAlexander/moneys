@@ -2,7 +2,7 @@
   <header class="users__head">
     <div>
       <h1 class="users__title">Пользователи</h1>
-      <p class="users__subtitle">{{ users().length }} пользователей</p>
+      <p class="users__subtitle">{{ totalUsers().length }} пользователей</p>
     </div>
     <button mat-flat-button type="button" (click)="toggleForm()">
       <mat-icon>{{ formOpen() ? 'close' : 'person_add' }}</mat-icon>
@@ -12,18 +12,29 @@
 
   @if (formOpen()) {
     <mat-card class="users__form-card">
-      <form class="users__form" [formGroup]="form" (ngSubmit)="createUser()">
+      <form class="users__form" (submit)="$event.preventDefault(); createUser()">
         <mat-form-field appearance="outline">
           <mat-label>ФИО</mat-label>
-          <input matInput formControlName="fullName" autocomplete="name" />
-          @if (form.controls.fullName.hasError('required') && form.controls.fullName.touched) {
+          <input [formField]="userForm.fullName" matInput ngDefaultControl autocomplete="name" />
+          @if (userForm.fullName().touched() && userForm.fullName().invalid()) {
             <mat-error>Укажите ФИО</mat-error>
           }
         </mat-form-field>
         <mat-form-field appearance="outline">
+          <mat-label>Населённый пункт</mat-label>
+          <mat-select [formField]="userForm.city">
+            @for (city of allCities; track city) {
+              <mat-option [value]="city">{{ city }}</mat-option>
+            }
+          </mat-select>
+          @if (userForm.city().touched() && userForm.city().invalid()) {
+            <mat-error>Укажите населённый пункт</mat-error>
+          }
+        </mat-form-field>
+        <mat-form-field appearance="outline">
           <mat-label>Логин</mat-label>
-          <input matInput formControlName="login" autocomplete="username" />
-          @if (form.controls.login.hasError('required') && form.controls.login.touched) {
+          <input [formField]="userForm.login" matInput ngDefaultControl autocomplete="username" />
+          @if (userForm.login().touched() && userForm.login().invalid()) {
             <mat-error>Укажите логин</mat-error>
           }
         </mat-form-field>
@@ -34,6 +45,35 @@
       </form>
     </mat-card>
   }
+
+  <div class="users__filters">
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="users__filter-city">
+      <mat-label>Город</mat-label>
+      <mat-select [value]="cityFilter()" (selectionChange)="cityFilter.set($event.value)">
+        <mat-option value="">Все города</mat-option>
+        @for (city of cities(); track city) {
+          <mat-option [value]="city">{{ city }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="users__filter-name">
+      <mat-label>Поиск по ФИО</mat-label>
+      <mat-icon matPrefix>search</mat-icon>
+      <input matInput type="text" [value]="nameFilter()" (input)="onNameFilter($event)" />
+      @if (nameFilter()) {
+        <button
+          matSuffix
+          mat-icon-button
+          type="button"
+          aria-label="Очистить"
+          (click)="nameFilter.set('')"
+        >
+          <mat-icon>close</mat-icon>
+        </button>
+      }
+    </mat-form-field>
+  </div>
 
   <ul class="users__list">
     @for (user of users(); track user.id) {
@@ -51,7 +91,12 @@
             </span>
             <span class="user-card__body">
               <span class="user-card__name">{{ user.fullName }}</span>
-              <span class="user-card__login">{{ user.login }}</span>
+              <span class="user-card__login">
+                {{ user.login }}
+                @if (user.city) {
+                  · {{ user.city }}
+                }
+              </span>
             </span>
             <mat-icon class="user-card__chevron">{{
               expanded ? 'expand_less' : 'expand_more'
@@ -60,6 +105,12 @@
           <mat-slide-toggle
             [checked]="user.active"
             (change)="toggleActive(user.id)"
+            [matTooltip]="
+              user.active
+                ? 'Деактивировать — пользователь перестанет получать назначения'
+                : 'Активировать — пользователь снова доступен для назначений'
+            "
+            matTooltipPosition="left"
             aria-label="Активность пользователя"
           />
           <button
@@ -97,28 +148,38 @@
               }
             </section>
 
-            <form class="user-bank" [formGroup]="bankForm" (ngSubmit)="saveBank(user.id)">
+            <form class="user-bank" (submit)="$event.preventDefault(); saveBank(user.id)">
               <h3 class="user-card__section-title">Банковские реквизиты</h3>
               <mat-form-field appearance="outline">
                 <mat-label>Получатель</mat-label>
-                <input matInput formControlName="recipient" />
+                <input [formField]="bankForm.recipient" matInput ngDefaultControl />
               </mat-form-field>
               <mat-form-field appearance="outline">
                 <mat-label>Банк</mat-label>
-                <input matInput formControlName="bankName" />
+                <input [formField]="bankForm.bankName" matInput ngDefaultControl />
               </mat-form-field>
               <mat-form-field appearance="outline">
                 <mat-label>Номер карты</mat-label>
-                <input matInput formControlName="cardNumber" inputmode="numeric" />
+                <input
+                  [formField]="bankForm.cardNumber"
+                  matInput
+                  ngDefaultControl
+                  inputmode="numeric"
+                />
               </mat-form-field>
               <div class="user-bank__row">
                 <mat-form-field appearance="outline">
                   <mat-label>Расчётный счёт</mat-label>
-                  <input matInput formControlName="accountNumber" inputmode="numeric" />
+                  <input
+                    [formField]="bankForm.accountNumber"
+                    matInput
+                    ngDefaultControl
+                    inputmode="numeric"
+                  />
                 </mat-form-field>
                 <mat-form-field appearance="outline">
                   <mat-label>БИК</mat-label>
-                  <input matInput formControlName="bik" inputmode="numeric" />
+                  <input [formField]="bankForm.bik" matInput ngDefaultControl inputmode="numeric" />
                 </mat-form-field>
               </div>
               <button mat-flat-button type="submit" class="user-bank__submit">
@@ -130,7 +191,13 @@
         }
       </li>
     } @empty {
-      <li class="users__empty">Пользователей нет — добавь первого, командир.</li>
+      <li class="users__empty">
+        @if (cityFilter() || nameFilter()) {
+          Никого не нашлось по заданным фильтрам.
+        } @else {
+          Пользователей нет — добавь первого, командир.
+        }
+      </li>
     }
   </ul>
 </section>

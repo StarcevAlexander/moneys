@@ -50,6 +50,74 @@
   margin-top: 0.25rem;
 }
 
+.orders__pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  border: 1px solid var(--shell-border);
+  border-radius: 999px;
+  padding: 0.35rem 0.85rem;
+  color: var(--shell-muted);
+  background: transparent;
+  font-size: 0.82rem;
+  font-weight: 500;
+  line-height: 1;
+  transition:
+    color 0.15s ease,
+    background-color 0.15s ease,
+    border-color 0.15s ease;
+
+  &:hover {
+    color: var(--shell-text);
+    border-color: var(--shell-accent);
+  }
+
+  &:focus {
+    outline: none;
+    box-shadow: none;
+  }
+}
+
+.orders__pill--active {
+  color: #10231a;
+  background: var(--shell-accent);
+  border-color: var(--shell-accent);
+}
+
+.orders__pill-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--shell-tab);
+}
+
+.orders__pill-dot--assigned {
+  background: #3ddc84;
+}
+
+.orders__pill-dot--in_progress {
+  background: #ffa94d;
+}
+
+.orders__pill-dot--done {
+  background: #4dabf7;
+}
+
+.orders__pill-dot--paid {
+  background: #ffd24d;
+}
+
+.orders__count {
+  background: rgba(0, 0, 0, 0.18);
+  color: inherit;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.orders__pill--active .orders__count {
+  background: rgba(0, 0, 0, 0.22);
+}
+
 .orders__list {
   list-style: none;
   margin: 0;
@@ -79,6 +147,10 @@
 
 .order-card--assigned {
   border-left-color: #3ddc84;
+}
+
+.order-card--in_progress {
+  border-left-color: #ffa94d;
 }
 
 .order-card--done {
@@ -170,51 +242,14 @@
   color: #3ddc84;
 }
 
+.order-card__status-icon--in_progress {
+  color: #ffa94d;
+}
+
 .order-card__status-icon--done {
   color: #4dabf7;
 }
 
 .order-card__status-icon--paid {
   color: #ffd24d;
-}
-
-// Поисковая строка внутри панели выпадашки назначения.
-// Панель рендерится в overlay вне компонента — стилизуем глобально по panelClass.
-::ng-deep .assign-panel {
-  .assign-search {
-    position: sticky;
-    top: 0;
-    z-index: 1;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.5rem 0.85rem;
-    background: var(--mat-sys-surface-container-high);
-    border-bottom: 1px solid var(--shell-border);
-
-    mat-icon {
-      flex: none;
-      font-size: 20px;
-      width: 20px;
-      height: 20px;
-      color: var(--shell-muted);
-    }
-  }
-
-  .assign-search__input {
-    flex: 1 1 auto;
-    min-width: 0;
-    border: none;
-    outline: none;
-    background: transparent;
-    color: inherit;
-    font: inherit;
-  }
-
-  .assign-empty {
-    padding: 0.75rem 0.85rem;
-    color: var(--shell-muted);
-    font-size: 0.85rem;
-    text-align: center;
-  }
 }

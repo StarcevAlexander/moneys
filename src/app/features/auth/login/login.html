@@ -9,12 +9,18 @@
     <h1 class="login__title">Moneys</h1>
     <p class="login__subtitle">Вход в кабинет</p>
 
-    <form class="login__form" [formGroup]="form" (ngSubmit)="submit()">
+    <form class="login__form" (submit)="$event.preventDefault(); submit()">
       <mat-form-field appearance="outline">
         <mat-label>Логин</mat-label>
-        <input matInput formControlName="login" autocomplete="username" inputmode="numeric" />
+        <input
+          [formField]="loginForm.login"
+          matInput
+          ngDefaultControl
+          autocomplete="username"
+          inputmode="numeric"
+        />
         <mat-icon matPrefix>person</mat-icon>
-        @if (form.controls.login.touched && form.controls.login.hasError('required')) {
+        @if (loginForm.login().touched() && loginForm.login().invalid()) {
           <mat-error>Введите логин</mat-error>
         }
       </mat-form-field>
@@ -22,8 +28,9 @@
       <mat-form-field appearance="outline">
         <mat-label>Пароль</mat-label>
         <input
+          [formField]="loginForm.password"
           matInput
-          formControlName="password"
+          ngDefaultControl
           [type]="hidePassword() ? 'password' : 'text'"
           autocomplete="current-password"
         />
@@ -37,7 +44,7 @@
         >
           <mat-icon>{{ hidePassword() ? 'visibility' : 'visibility_off' }}</mat-icon>
         </button>
-        @if (form.controls.password.touched && form.controls.password.hasError('required')) {
+        @if (loginForm.password().touched() && loginForm.password().invalid()) {
           <mat-error>Введите пароль</mat-error>
         }
       </mat-form-field>

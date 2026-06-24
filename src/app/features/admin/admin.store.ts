@@ -98,6 +98,7 @@ export class AdminStore {
       id: crypto.randomUUID(),
       login: draft.login.trim(),
       fullName: draft.fullName.trim(),
+      city: draft.city.trim(),
       active: true,
     };
     this._users.update((list) => [user, ...list]);

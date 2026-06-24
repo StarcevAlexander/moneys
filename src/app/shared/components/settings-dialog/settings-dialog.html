@@ -9,39 +9,69 @@
   <mat-tab-group animationDuration="200ms" mat-stretch-tabs="false">
     <!-- Профиль -->
     <mat-tab label="Профиль">
-      <form class="settings__form" [formGroup]="profileForm" (ngSubmit)="saveProfile()">
+      <form class="settings__form" (submit)="$event.preventDefault(); saveProfile()">
         <h3 class="settings__group-title">ФИО</h3>
         <mat-form-field appearance="outline">
           <mat-label>Фамилия</mat-label>
-          <input matInput formControlName="lastName" autocomplete="family-name" />
+          <input
+            [formField]="profileForm.lastName"
+            matInput
+            ngDefaultControl
+            autocomplete="family-name"
+          />
         </mat-form-field>
         <mat-form-field appearance="outline">
           <mat-label>Имя</mat-label>
-          <input matInput formControlName="firstName" autocomplete="given-name" />
+          <input
+            [formField]="profileForm.firstName"
+            matInput
+            ngDefaultControl
+            autocomplete="given-name"
+          />
         </mat-form-field>
         <mat-form-field appearance="outline">
           <mat-label>Отчество</mat-label>
-          <input matInput formControlName="middleName" autocomplete="additional-name" />
+          <input
+            [formField]="profileForm.middleName"
+            matInput
+            ngDefaultControl
+            autocomplete="additional-name"
+          />
         </mat-form-field>
 
         <h3 class="settings__group-title">Паспортные данные</h3>
         <div class="settings__row">
           <mat-form-field appearance="outline">
             <mat-label>Серия</mat-label>
-            <input matInput formControlName="passportSeries" inputmode="numeric" maxlength="4" />
+            <input
+              [formField]="profileForm.passportSeries"
+              matInput
+              ngDefaultControl
+              inputmode="numeric"
+            />
           </mat-form-field>
           <mat-form-field appearance="outline">
             <mat-label>Номер</mat-label>
-            <input matInput formControlName="passportNumber" inputmode="numeric" maxlength="6" />
+            <input
+              [formField]="profileForm.passportNumber"
+              matInput
+              ngDefaultControl
+              inputmode="numeric"
+            />
           </mat-form-field>
         </div>
         <mat-form-field appearance="outline">
           <mat-label>Кем выдан</mat-label>
-          <input matInput formControlName="passportIssuedBy" />
+          <input [formField]="profileForm.passportIssuedBy" matInput ngDefaultControl />
         </mat-form-field>
         <mat-form-field appearance="outline">
           <mat-label>Дата выдачи</mat-label>
-          <input matInput formControlName="passportIssuedAt" placeholder="дд.мм.гггг" />
+          <input
+            [formField]="profileForm.passportIssuedAt"
+            matInput
+            ngDefaultControl
+            placeholder="дд.мм.гггг"
+          />
         </mat-form-field>
 
         <button mat-flat-button type="submit" class="settings__submit">
@@ -54,28 +84,38 @@
     <!-- Реквизиты -->
     @if (hasBank()) {
       <mat-tab label="Реквизиты">
-        <form class="settings__form" [formGroup]="bankForm" (ngSubmit)="saveBank()">
+        <form class="settings__form" (submit)="$event.preventDefault(); saveBank()">
           <p class="settings__hint">Реквизиты для переводов и вывода денег.</p>
           <mat-form-field appearance="outline">
             <mat-label>Получатель</mat-label>
-            <input matInput formControlName="recipient" autocomplete="name" />
+            <input [formField]="bankForm.recipient" matInput ngDefaultControl autocomplete="name" />
           </mat-form-field>
           <mat-form-field appearance="outline">
             <mat-label>Банк</mat-label>
-            <input matInput formControlName="bankName" />
+            <input [formField]="bankForm.bankName" matInput ngDefaultControl />
           </mat-form-field>
           <mat-form-field appearance="outline">
             <mat-label>Номер карты</mat-label>
-            <input matInput formControlName="cardNumber" inputmode="numeric" />
+            <input
+              [formField]="bankForm.cardNumber"
+              matInput
+              ngDefaultControl
+              inputmode="numeric"
+            />
           </mat-form-field>
           <div class="settings__row">
             <mat-form-field appearance="outline">
               <mat-label>Расчётный счёт</mat-label>
-              <input matInput formControlName="accountNumber" inputmode="numeric" />
+              <input
+                [formField]="bankForm.accountNumber"
+                matInput
+                ngDefaultControl
+                inputmode="numeric"
+              />
             </mat-form-field>
             <mat-form-field appearance="outline">
               <mat-label>БИК</mat-label>
-              <input matInput formControlName="bik" inputmode="numeric" />
+              <input [formField]="bankForm.bik" matInput ngDefaultControl inputmode="numeric" />
             </mat-form-field>
           </div>
           <button mat-flat-button type="submit" class="settings__submit">
@@ -111,32 +151,22 @@
 
     <!-- Техподдержка -->
     <mat-tab label="Техподдержка">
-      <form class="settings__form" [formGroup]="supportForm" (ngSubmit)="sendSupport()">
+      <form class="settings__form" (submit)="$event.preventDefault(); sendSupport()">
         <p class="settings__hint">Опишите проблему или вопрос — мы свяжемся с вами.</p>
         <mat-form-field appearance="outline">
           <mat-label>Сообщение</mat-label>
           <textarea
+            [formField]="supportForm.message"
             matInput
-            formControlName="message"
+            ngDefaultControl
             rows="6"
             placeholder="Расскажите, что случилось…"
           ></textarea>
-          @if (
-            supportForm.controls.message.hasError('required') &&
-            supportForm.controls.message.touched
-          ) {
-            <mat-error>Введите сообщение</mat-error>
-          }
-          @if (supportForm.controls.message.hasError('minlength')) {
-            <mat-error>Минимум 10 символов</mat-error>
+          @if (supportForm.message().touched() && supportForm.message().invalid()) {
+            <mat-error>{{ supportForm.message().errors()[0].message }}</mat-error>
           }
         </mat-form-field>
-        <button
-          mat-flat-button
-          type="submit"
-          class="settings__submit"
-          [disabled]="supportSending()"
-        >
+        <button mat-flat-button type="submit" class="settings__submit">
           <mat-icon>send</mat-icon>
           Отправить
         </button>

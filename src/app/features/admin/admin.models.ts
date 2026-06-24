@@ -19,6 +19,8 @@ export interface ManagedUser {
   login: string;
   /** ФИО пользователя. */
   fullName: string;
+  /** Населённый пункт пользователя. */
+  city: string;
   /** Активен ли пользователь (может получать назначения). */
   active: boolean;
   /** Банковские реквизиты для выплат. */
@@ -26,7 +28,7 @@ export interface ManagedUser {
 }
 
 /** Статус заявки в админ-панели. */
-export type AdminOrderStatus = 'open' | 'assigned' | 'done' | 'paid';
+export type AdminOrderStatus = 'open' | 'assigned' | 'in_progress' | 'done' | 'paid';
 
 /** Заявка (заказ), заведённая администратором. */
 export interface AdminOrder {
@@ -46,4 +48,4 @@ export interface AdminOrder {
 export type NewOrderDraft = Omit<AdminOrder, 'id' | 'status' | 'assignedUserId'>;
 
 /** Черновик нового пользователя. */
-export type NewUserDraft = Pick<ManagedUser, 'login' | 'fullName'>;
+export type NewUserDraft = Pick<ManagedUser, 'login' | 'fullName' | 'city'>;

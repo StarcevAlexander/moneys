@@ -7,10 +7,25 @@ export const ADMIN_ORDERS_STORAGE_KEY = 'moneys.admin.orders';
 /** Задержка дебаунса поиска исполнителя в выпадашке назначения. */
 export const ASSIGN_SEARCH_DEBOUNCE_MS = 300;
 
+/** Моковый список доступных населённых пунктов (Иркутская область). */
+export const CITIES: string[] = [
+  'Иркутск',
+  'Ангарск',
+  'Шелехов',
+  'Братск',
+  'Усолье-Сибирское',
+  'Усть-Илимск',
+  'Черемхово',
+  'Саянск',
+  'Тулун',
+  'Зима',
+];
+
 /** Человекочитаемые подписи статусов заявки. */
 export const ADMIN_ORDER_STATUS_LABELS: Record<AdminOrderStatus, string> = {
   open: 'Не назначена',
   assigned: 'Назначена',
+  in_progress: 'Выполняется',
   done: 'Выполнена',
   paid: 'Оплачена',
 };
@@ -19,12 +34,19 @@ export const ADMIN_ORDER_STATUS_LABELS: Record<AdminOrderStatus, string> = {
 export const ADMIN_ORDER_STATUS_ICONS: Record<AdminOrderStatus, string> = {
   open: 'fiber_new',
   assigned: 'how_to_reg',
+  in_progress: 'autorenew',
   done: 'task_alt',
   paid: 'payments',
 };
 
 /** Порядок статусов для селектора смены статуса. */
-export const ADMIN_ORDER_STATUSES: AdminOrderStatus[] = ['open', 'assigned', 'done', 'paid'];
+export const ADMIN_ORDER_STATUSES: AdminOrderStatus[] = [
+  'open',
+  'assigned',
+  'in_progress',
+  'done',
+  'paid',
+];
 
 /** Уведомления админ-панели. */
 export const ORDER_CREATED_MESSAGE = 'Заявка создана';

@@ -2,7 +2,9 @@
   <header class="orders__head">
     <div>
       <h1 class="orders__title">Заявки</h1>
-      <p class="orders__subtitle">{{ orders().length }} заявок · назначение на пользователей</p>
+      <p class="orders__subtitle">
+        {{ totalOrders().length }} заявок · назначение на пользователей
+      </p>
     </div>
     <button mat-flat-button type="button" (click)="toggleForm()">
       <mat-icon>{{ formOpen() ? 'close' : 'add' }}</mat-icon>
@@ -12,40 +14,50 @@
 
   @if (formOpen()) {
     <mat-card class="orders__form-card">
-      <form class="orders__form" [formGroup]="form" (ngSubmit)="createOrder()">
+      <form class="orders__form" (submit)="$event.preventDefault(); createOrder()">
         <div class="orders__row">
           <mat-form-field appearance="outline">
             <mat-label>Название</mat-label>
-            <input matInput formControlName="title" />
-            @if (form.controls.title.hasError('required') && form.controls.title.touched) {
+            <input [formField]="form.title" matInput ngDefaultControl />
+            @if (form.title().touched() && form.title().invalid()) {
               <mat-error>Укажите название</mat-error>
             }
           </mat-form-field>
           <mat-form-field appearance="outline">
             <mat-label>Компания</mat-label>
-            <input matInput formControlName="company" />
-            @if (form.controls.company.hasError('required') && form.controls.company.touched) {
+            <input [formField]="form.company" matInput ngDefaultControl />
+            @if (form.company().touched() && form.company().invalid()) {
               <mat-error>Укажите компанию</mat-error>
             }
           </mat-form-field>
         </div>
         <mat-form-field appearance="outline">
           <mat-label>Адрес</mat-label>
-          <input matInput formControlName="address" />
+          <input [formField]="form.address" matInput ngDefaultControl />
         </mat-form-field>
         <div class="orders__row">
           <mat-form-field appearance="outline">
             <mat-label>Оплата</mat-label>
-            <input matInput formControlName="payout" placeholder="₽ 2 800 / смена" />
+            <input
+              [formField]="form.payout"
+              matInput
+              ngDefaultControl
+              placeholder="₽ 2 800 / смена"
+            />
           </mat-form-field>
           <mat-form-field appearance="outline">
             <mat-label>График</mat-label>
-            <input matInput formControlName="schedule" placeholder="Сегодня · 09:00–18:00" />
+            <input
+              [formField]="form.schedule"
+              matInput
+              ngDefaultControl
+              placeholder="Сегодня · 09:00–18:00"
+            />
           </mat-form-field>
         </div>
         <mat-form-field appearance="outline">
           <mat-label>Описание</mat-label>
-          <textarea matInput formControlName="description" rows="3"></textarea>
+          <textarea [formField]="form.description" matInput ngDefaultControl rows="3"></textarea>
         </mat-form-field>
         <button mat-flat-button type="submit" class="orders__submit">
           <mat-icon>save</mat-icon>
@@ -55,8 +67,32 @@
     </mat-card>
   }
 
+  <div class="orders__tabs d-flex flex-wrap gap-2" role="tablist">
+    <button
+      type="button"
+      class="btn btn-sm orders__pill"
+      [class.orders__pill--active]="statusFilter() === 'all'"
+      (click)="statusFilter.set('all')"
+    >
+      Все
+      <span class="badge rounded-pill orders__count">{{ totalOrders().length }}</span>
+    </button>
+    @for (status of statuses; track status) {
+      <button
+        type="button"
+        class="btn btn-sm orders__pill"
+        [class.orders__pill--active]="statusFilter() === status"
+        (click)="statusFilter.set(status)"
+      >
+        <i class="orders__pill-dot orders__pill-dot--{{ status }}"></i>
+        {{ statusLabels[status] }}
+        <span class="badge rounded-pill orders__count">{{ counts()[status] }}</span>
+      </button>
+    }
+  </div>
+
   <ul class="orders__list">
-    @for (order of orders(); track order.id) {
+    @for (order of visibleOrders(); track order.id) {
       <li class="order-card order-card--{{ order.status }}">
         <div class="order-card__main">
           <div class="order-card__icon">
@@ -90,32 +126,48 @@
 
         <div class="order-card__assign">
           <mat-form-field appearance="outline" subscriptSizing="dynamic" class="order-card__select">
-            <mat-label>Назначить на</mat-label>
-            <mat-select
-              panelClass="assign-panel"
-              [value]="order.assignedUserId ?? ''"
-              (selectionChange)="onAssign(order.id, $event.value)"
-              (openedChange)="$event && resetSearch()"
+            <mat-label>Исполнитель</mat-label>
+            <mat-icon matPrefix>search</mat-icon>
+            <input
+              #assignInput
+              matInput
+              type="text"
+              [placeholder]="assigneeName(order) || 'Поиск исполнителя'"
+              [matAutocomplete]="auto"
+              (input)="onSearch($event)"
+              (focus)="resetSearch()"
+            />
+            @if (assignInput.value) {
+              <button
+                matSuffix
+                mat-icon-button
+                type="button"
+                aria-label="Очистить"
+                (click)="assignInput.value = ''; resetSearch()"
+              >
+                <mat-icon>close</mat-icon>
+              </button>
+            } @else if (order.assignedUserId) {
+              <button
+                matSuffix
+                mat-icon-button
+                type="button"
+                aria-label="Снять назначение"
+                (click)="onAssign(order.id, '')"
+              >
+                <mat-icon>close</mat-icon>
+              </button>
+            }
+            <mat-autocomplete
+              #auto
+              (optionSelected)="onAssign(order.id, $event.option.value); assignInput.value = ''"
             >
-              <div class="assign-search">
-                <mat-icon>search</mat-icon>
-                <input
-                  type="text"
-                  class="assign-search__input"
-                  placeholder="Поиск исполнителя"
-                  [value]="query()"
-                  (input)="onSearch($event)"
-                  (keydown)="$event.stopPropagation()"
-                  (click)="$event.stopPropagation()"
-                />
-              </div>
-              <mat-option value="">Не назначена</mat-option>
               @for (user of assignableFor(order); track user.id) {
                 <mat-option [value]="user.id">{{ user.fullName }}</mat-option>
               } @empty {
-                <div class="assign-empty">Ничего не найдено</div>
+                <mat-option disabled>Ничего не найдено</mat-option>
               }
-            </mat-select>
+            </mat-autocomplete>
           </mat-form-field>
 
           <mat-form-field
@@ -126,10 +178,10 @@
             <mat-label>Статус</mat-label>
             <mat-select
               [value]="order.status"
-              (selectionChange)="onStatusChange(order.id, $event.value)"
+              (selectionChange)="onStatusChange(order, $event.value)"
             >
               @for (status of statuses; track status) {
-                <mat-option [value]="status">
+                <mat-option [value]="status" [disabled]="!isStatusReachable(order, status)">
                   <mat-icon class="order-card__status-icon order-card__status-icon--{{ status }}">
                     {{ statusIcons[status] }}
                   </mat-icon>
@@ -141,7 +193,13 @@
         </div>
       </li>
     } @empty {
-      <li class="orders__empty">Заявок пока нет — заведи первую, командир.</li>
+      <li class="orders__empty">
+        @if (statusFilter() === 'all') {
+          Заявок пока нет — заведи первую, командир.
+        } @else {
+          Нет заявок в статусе «{{ statusFilterLabel() }}».
+        }
+      </li>
     }
   </ul>
 </section>
