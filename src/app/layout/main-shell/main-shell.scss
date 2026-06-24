@@ -62,6 +62,13 @@
   color: var(--shell-muted);
 }
 
+.shell__avatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
 .coin {
   width: 64px;
   height: 64px;

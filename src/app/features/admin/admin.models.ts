@@ -12,7 +12,43 @@ export interface BankDetails {
   bik: string;
 }
 
-/** Пользователь, заведённый администратором. */
+/** Паспортные данные пользователя. */
+export interface PassportData {
+  series: string;
+  number: string;
+  issuedBy: string;
+  issuedAt: string;
+  birthDate: string;
+  registrationAddress: string;
+}
+
+/** Загруженный файл (хранится локально как data URL). */
+export interface UploadedFile {
+  name: string;
+  /** Содержимое в виде data URL (base64). */
+  dataUrl: string;
+}
+
+/** Ключ конкретного документа пользователя. */
+export type UserDocumentKey =
+  | 'passportMain'
+  | 'passportRegistration'
+  | 'selfEmployedCertificate'
+  | 'photo';
+
+/** Документы пользователя. */
+export interface UserDocuments {
+  /** Фото паспорта — первая страница. */
+  passportMain?: UploadedFile;
+  /** Фото паспорта — страница с пропиской. */
+  passportRegistration?: UploadedFile;
+  /** Выписка о статусе самозанятого. */
+  selfEmployedCertificate?: UploadedFile;
+  /** Фото пользователя. */
+  photo?: UploadedFile;
+}
+
+/** Пользователь, заведённый администратором или зарегистрированный сам. */
 export interface ManagedUser {
   id: string;
   /** Логин для входа в приложение. */
@@ -23,8 +59,25 @@ export interface ManagedUser {
   city: string;
   /** Активен ли пользователь (может получать назначения). */
   active: boolean;
+  /** Пароль (моковое локальное хранение, для входа зарегистрированных пользователей). */
+  password?: string;
   /** Банковские реквизиты для выплат. */
   bankDetails?: BankDetails;
+  /** Паспортные данные. */
+  passport?: PassportData;
+  /** Загруженные документы и фото. */
+  documents?: UserDocuments;
+}
+
+/** Данные регистрации нового пользователя. */
+export interface RegistrationDraft {
+  login: string;
+  password: string;
+  fullName: string;
+  city: string;
+  passport: PassportData;
+  bankDetails: BankDetails;
+  documents: UserDocuments;
 }
 
 /** Статус заявки в админ-панели. */

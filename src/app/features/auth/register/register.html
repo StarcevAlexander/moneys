@@ -1,0 +1,176 @@
+<div class="reg">
+  <section class="reg__card">
+    <header class="reg__head">
+      <div class="coin coin--sm"><span>M</span></div>
+      <div>
+        <h1 class="reg__title">Регистрация</h1>
+        <p class="reg__subtitle">Заполните профиль и загрузите документы</p>
+      </div>
+    </header>
+
+    <form class="reg__form" (submit)="$event.preventDefault(); register()">
+      <h3 class="reg__group">Аккаунт</h3>
+      <mat-form-field appearance="outline">
+        <mat-label>Логин</mat-label>
+        <input [formField]="form.login" matInput ngDefaultControl autocomplete="username" />
+        @if (form.login().touched() && form.login().invalid()) {
+          <mat-error>Укажите логин</mat-error>
+        }
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Пароль</mat-label>
+        <input
+          [formField]="form.password"
+          matInput
+          ngDefaultControl
+          [type]="hidePassword() ? 'password' : 'text'"
+          autocomplete="new-password"
+        />
+        <button
+          type="button"
+          mat-icon-button
+          matSuffix
+          (click)="togglePassword()"
+          [attr.aria-label]="hidePassword() ? 'Показать пароль' : 'Скрыть пароль'"
+        >
+          <mat-icon>{{ hidePassword() ? 'visibility' : 'visibility_off' }}</mat-icon>
+        </button>
+        @if (form.password().touched() && form.password().invalid()) {
+          <mat-error>{{ form.password().errors()[0].message }}</mat-error>
+        }
+      </mat-form-field>
+
+      <h3 class="reg__group">Профиль</h3>
+      <mat-form-field appearance="outline">
+        <mat-label>ФИО</mat-label>
+        <input [formField]="form.fullName" matInput ngDefaultControl autocomplete="name" />
+        @if (form.fullName().touched() && form.fullName().invalid()) {
+          <mat-error>Укажите ФИО</mat-error>
+        }
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Населённый пункт</mat-label>
+        <mat-select [formField]="form.city">
+          @for (city of cities; track city) {
+            <mat-option [value]="city">{{ city }}</mat-option>
+          }
+        </mat-select>
+        @if (form.city().touched() && form.city().invalid()) {
+          <mat-error>Укажите город</mat-error>
+        }
+      </mat-form-field>
+
+      <h3 class="reg__group">Паспортные данные</h3>
+      <div class="reg__row">
+        <mat-form-field appearance="outline">
+          <mat-label>Серия</mat-label>
+          <input [formField]="form.series" matInput ngDefaultControl inputmode="numeric" />
+          @if (form.series().touched() && form.series().invalid()) {
+            <mat-error>Серия</mat-error>
+          }
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>Номер</mat-label>
+          <input [formField]="form.number" matInput ngDefaultControl inputmode="numeric" />
+          @if (form.number().touched() && form.number().invalid()) {
+            <mat-error>Номер</mat-error>
+          }
+        </mat-form-field>
+      </div>
+      <mat-form-field appearance="outline">
+        <mat-label>Кем выдан</mat-label>
+        <input [formField]="form.issuedBy" matInput ngDefaultControl />
+      </mat-form-field>
+      <div class="reg__row">
+        <mat-form-field appearance="outline">
+          <mat-label>Дата выдачи</mat-label>
+          <input [formField]="form.issuedAt" matInput ngDefaultControl placeholder="дд.мм.гггг" />
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>Дата рождения</mat-label>
+          <input [formField]="form.birthDate" matInput ngDefaultControl placeholder="дд.мм.гггг" />
+        </mat-form-field>
+      </div>
+      <mat-form-field appearance="outline">
+        <mat-label>Адрес прописки</mat-label>
+        <input [formField]="form.registrationAddress" matInput ngDefaultControl />
+      </mat-form-field>
+
+      <h3 class="reg__group">Банковские реквизиты</h3>
+      <mat-form-field appearance="outline">
+        <mat-label>Получатель</mat-label>
+        <input [formField]="form.recipient" matInput ngDefaultControl autocomplete="name" />
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Банк</mat-label>
+        <input [formField]="form.bankName" matInput ngDefaultControl />
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Номер карты</mat-label>
+        <input [formField]="form.cardNumber" matInput ngDefaultControl inputmode="numeric" />
+      </mat-form-field>
+      <div class="reg__row">
+        <mat-form-field appearance="outline">
+          <mat-label>Расчётный счёт</mat-label>
+          <input [formField]="form.accountNumber" matInput ngDefaultControl inputmode="numeric" />
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>БИК</mat-label>
+          <input [formField]="form.bik" matInput ngDefaultControl inputmode="numeric" />
+        </mat-form-field>
+      </div>
+
+      <h3 class="reg__group">Документы и фото</h3>
+      <div class="reg__docs">
+        @for (d of docFields; track d.key) {
+          <div class="reg__doc" [class.reg__doc--filled]="!!doc(d.key)">
+            <div class="reg__doc-head">
+              <mat-icon class="reg__doc-icon">
+                {{ doc(d.key) ? 'check_circle' : 'upload_file' }}
+              </mat-icon>
+              <span class="reg__doc-label">{{ d.label }}</span>
+            </div>
+
+            @if (doc(d.key); as f) {
+              @if (f.dataUrl.startsWith('data:image')) {
+                <img class="reg__thumb" [src]="f.dataUrl" [alt]="d.label" />
+              } @else {
+                <span class="reg__doc-file">
+                  <mat-icon>description</mat-icon>
+                  {{ f.name }}
+                </span>
+              }
+            }
+
+            <input
+              type="file"
+              hidden
+              #fileInput
+              [accept]="d.accept"
+              (change)="onFile($event, d.key)"
+            />
+            <button
+              type="button"
+              mat-stroked-button
+              class="reg__doc-btn"
+              (click)="fileInput.click()"
+            >
+              <mat-icon>{{ doc(d.key) ? 'autorenew' : 'add' }}</mat-icon>
+              {{ doc(d.key) ? 'Заменить' : 'Загрузить' }}
+            </button>
+          </div>
+        }
+      </div>
+
+      <button mat-flat-button type="submit" class="reg__submit">
+        <mat-icon>how_to_reg</mat-icon>
+        Зарегистрироваться
+      </button>
+    </form>
+
+    <p class="reg__login-hint">
+      Уже есть аккаунт?
+      <a routerLink="/login">Войти</a>
+    </p>
+  </section>
+</div>

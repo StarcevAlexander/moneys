@@ -12,7 +12,11 @@
       <span class="shell__role">Админ</span>
     }
     <span class="shell__user">
-      <mat-icon inline>account_circle</mat-icon>
+      @if (avatar(); as src) {
+        <img class="shell__avatar" [src]="src" alt="" />
+      } @else {
+        <mat-icon inline>account_circle</mat-icon>
+      }
       {{ user()?.login }}
     </span>
     <button mat-icon-button (click)="logout()" aria-label="Выйти">

@@ -1,0 +1,182 @@
+.reg {
+  min-height: 100%;
+  display: flex;
+  justify-content: center;
+  padding: 1.5rem 1rem 3rem;
+  background: var(--shell-bg);
+}
+
+.reg__card {
+  width: 100%;
+  max-width: 540px;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1.5rem;
+  border-radius: 22px;
+  background: var(--shell-bar-bg);
+  border: 1px solid var(--shell-border);
+  color: var(--shell-text);
+}
+
+.reg__head {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+}
+
+.coin {
+  width: 76px;
+  height: 76px;
+  flex: none;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: radial-gradient(
+    circle at 36% 30%,
+    #fff6cf 0%,
+    #ffd24d 34%,
+    #e8a83a 70%,
+    #b6781e 100%
+  );
+  box-shadow:
+    inset 0 0 0 3px rgba(255, 246, 207, 0.55),
+    inset 0 -6px 12px rgba(120, 70, 10, 0.45),
+    0 10px 24px rgba(0, 0, 0, 0.4);
+}
+
+.coin--sm {
+  width: 52px;
+  height: 52px;
+}
+
+.coin span {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-weight: 700;
+  color: #6b4310;
+}
+
+.coin--sm span {
+  font-size: 1.7rem;
+}
+
+.reg__title {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.reg__subtitle {
+  margin: 0.2rem 0 0;
+  color: var(--shell-muted);
+  font-size: 0.9rem;
+}
+
+.reg__form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.reg__group {
+  margin: 0.85rem 0 0.35rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--shell-muted);
+}
+
+.reg__row {
+  display: flex;
+  gap: 0.75rem;
+
+  mat-form-field {
+    flex: 1 1 0;
+  }
+}
+
+.reg__docs {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem;
+}
+
+.reg__doc {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding: 0.85rem;
+  border-radius: 14px;
+  border: 1px dashed var(--shell-border);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.reg__doc--filled {
+  border-style: solid;
+  border-color: var(--shell-accent);
+}
+
+.reg__doc-head {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.reg__doc-icon {
+  flex: none;
+  color: var(--shell-muted);
+}
+
+.reg__doc--filled .reg__doc-icon {
+  color: var(--shell-accent);
+}
+
+.reg__doc-label {
+  min-width: 0;
+}
+
+.reg__thumb {
+  width: 100%;
+  height: 110px;
+  object-fit: cover;
+  border-radius: 10px;
+}
+
+.reg__doc-file {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: var(--shell-muted);
+  font-size: 0.8rem;
+  word-break: break-all;
+}
+
+.reg__doc-btn {
+  align-self: flex-start;
+}
+
+.reg__submit {
+  margin-top: 1rem;
+}
+
+.reg__login-hint {
+  margin: 0;
+  text-align: center;
+  color: var(--shell-muted);
+  font-size: 0.9rem;
+
+  a {
+    color: var(--shell-accent);
+    font-weight: 600;
+    text-decoration: none;
+  }
+}
+
+@media (max-width: 420px) {
+  .reg__docs {
+    grid-template-columns: 1fr;
+  }
+}

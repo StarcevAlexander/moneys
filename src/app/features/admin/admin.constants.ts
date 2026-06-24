@@ -1,4 +1,4 @@
-import { AdminOrderStatus, BankDetails } from './admin.models';
+import { AdminOrderStatus, BankDetails, PassportData } from './admin.models';
 
 /** Ключи localStorage для админских данных. */
 export const ADMIN_USERS_STORAGE_KEY = 'moneys.admin.users';
@@ -67,3 +67,26 @@ export const EMPTY_BANK_DETAILS: BankDetails = {
   accountNumber: '',
   bik: '',
 };
+
+/** Пустые паспортные данные по умолчанию. */
+export const EMPTY_PASSPORT: PassportData = {
+  series: '',
+  number: '',
+  issuedBy: '',
+  issuedAt: '',
+  birthDate: '',
+  registrationAddress: '',
+};
+
+/** Максимальный размер стороны загружаемого изображения (для сжатия перед хранением). */
+export const UPLOAD_IMAGE_MAX_SIZE = 1280;
+
+/** Максимальный размер стороны аватара пользователя. */
+export const AVATAR_IMAGE_MAX_SIZE = 512;
+
+/** Сообщение об обновлении фото пользователя. */
+export const PHOTO_SAVED_MESSAGE = 'Фото обновлено';
+
+/** Сообщения регистрации. */
+export const REGISTRATION_SUCCESS_MESSAGE = 'Регистрация завершена';
+export const REGISTRATION_DOCS_REQUIRED_MESSAGE = 'Загрузите все документы и фото';

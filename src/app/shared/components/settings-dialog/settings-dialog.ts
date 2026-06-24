@@ -12,10 +12,13 @@ import { PROFILE_SAVED_MESSAGE, SUPPORT_SENT_BODY } from '../../../core/constant
 import { AuthService, ProfileService, ThemeService } from '../../../core/services';
 import { ThemeId } from '../../../core/models';
 import {
+  AVATAR_IMAGE_MAX_SIZE,
   BANK_DETAILS_SAVED_MESSAGE,
   EMPTY_BANK_DETAILS,
+  PHOTO_SAVED_MESSAGE,
 } from '../../../features/admin/admin.constants';
 import { AdminStore } from '../../../features/admin/admin.store';
+import { compressImage } from '../../../core/utils/image-upload';
 
 /** Диалог настроек: профиль, реквизиты, тема оформления и обращение в техподдержку. */
 @Component({
@@ -51,6 +54,8 @@ export class SettingsDialog {
     return login ? this.adminStore.userByLogin(login) : undefined;
   });
   protected readonly hasBank = computed(() => !!this.bankUser());
+  /** Текущий аватар пользователя (data URL) или undefined — тогда показываем иконку. */
+  protected readonly avatar = computed(() => this.bankUser()?.documents?.photo?.dataUrl);
 
   private readonly profile = signal(this.profileService.profile());
   protected readonly profileForm = form(this.profile, (path) => {
@@ -74,6 +79,23 @@ export class SettingsDialog {
   saveProfile(): void {
     this.profileService.save(this.profile());
     this.snackBar.open(PROFILE_SAVED_MESSAGE, undefined, { duration: 2500 });
+  }
+
+  async onAvatar(event: Event): Promise<void> {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    const user = this.bankUser();
+    if (!file || !user) {
+      return;
+    }
+    try {
+      const dataUrl = await compressImage(file, AVATAR_IMAGE_MAX_SIZE);
+      this.adminStore.updatePhoto(user.id, { name: file.name, dataUrl });
+      this.snackBar.open(PHOTO_SAVED_MESSAGE, undefined, { duration: 2000 });
+    } catch {
+      this.snackBar.open('Не удалось загрузить фото', undefined, { duration: 2500 });
+    }
+    input.value = '';
   }
 
   saveBank(): void {

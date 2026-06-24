@@ -8,6 +8,8 @@ import {
   ManagedUser,
   NewOrderDraft,
   NewUserDraft,
+  RegistrationDraft,
+  UploadedFile,
 } from './admin.models';
 
 /** Реактивное состояние админ-панели: пользователи и заявки с персистом в localStorage. */
@@ -28,8 +30,17 @@ export class AdminStore {
 
   constructor() {
     // Любое изменение состояния сразу сохраняем в localStorage.
-    effect(() => localStorage.setItem(ADMIN_USERS_STORAGE_KEY, JSON.stringify(this._users())));
-    effect(() => localStorage.setItem(ADMIN_ORDERS_STORAGE_KEY, JSON.stringify(this._orders())));
+    // В try/catch — потому что фото/документы пользователей могут переполнить квоту.
+    effect(() => this.persist(ADMIN_USERS_STORAGE_KEY, this._users()));
+    effect(() => this.persist(ADMIN_ORDERS_STORAGE_KEY, this._orders()));
+  }
+
+  private persist(key: string, value: unknown): void {
+    try {
+      localStorage.setItem(key, JSON.stringify(value));
+    } catch {
+      // Переполнение квоты localStorage — состояние остаётся в памяти.
+    }
   }
 
   // --- Заявки ---------------------------------------------------------------
@@ -88,9 +99,39 @@ export class AdminStore {
     return this._users().find((u) => u.login.toLowerCase() === normalized);
   }
 
+  /** Поиск активного пользователя по логину и паролю (для входа зарегистрированных). */
+  findByCredentials(login: string, password: string): ManagedUser | undefined {
+    const user = this.userByLogin(login);
+    return user && user.active && user.password === password ? user : undefined;
+  }
+
+  /** Регистрация нового пользователя. Возвращает созданную запись. */
+  register(draft: RegistrationDraft): ManagedUser {
+    const user: ManagedUser = {
+      id: crypto.randomUUID(),
+      login: draft.login.trim(),
+      fullName: draft.fullName.trim(),
+      city: draft.city.trim(),
+      active: true,
+      password: draft.password,
+      passport: draft.passport,
+      bankDetails: draft.bankDetails,
+      documents: draft.documents,
+    };
+    this._users.update((list) => [user, ...list]);
+    return user;
+  }
+
   /** Обновление банковских реквизитов пользователя (правит и админ, и сам юзер). */
   updateBankDetails(userId: string, bankDetails: BankDetails): void {
     this._users.update((list) => list.map((u) => (u.id === userId ? { ...u, bankDetails } : u)));
+  }
+
+  /** Обновление фото (аватара) пользователя. */
+  updatePhoto(userId: string, photo: UploadedFile): void {
+    this._users.update((list) =>
+      list.map((u) => (u.id === userId ? { ...u, documents: { ...u.documents, photo } } : u)),
+    );
   }
 
   addUser(draft: NewUserDraft): void {

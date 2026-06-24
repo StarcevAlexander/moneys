@@ -9,6 +9,29 @@
   <mat-tab-group animationDuration="200ms" mat-stretch-tabs="false">
     <!-- Профиль -->
     <mat-tab label="Профиль">
+      @if (hasBank()) {
+        <div class="settings__avatar">
+          <div class="settings__avatar-pic">
+            @if (avatar(); as src) {
+              <img [src]="src" alt="Аватар" />
+            } @else {
+              <mat-icon>account_circle</mat-icon>
+            }
+          </div>
+          <input
+            type="file"
+            hidden
+            #avatarInput
+            accept="image/*"
+            capture="user"
+            (change)="onAvatar($event)"
+          />
+          <button mat-stroked-button type="button" (click)="avatarInput.click()">
+            <mat-icon>photo_camera</mat-icon>
+            {{ avatar() ? 'Переснять' : 'Сделать фото' }}
+          </button>
+        </div>
+      }
       <form class="settings__form" (submit)="$event.preventDefault(); saveProfile()">
         <h3 class="settings__group-title">ФИО</h3>
         <mat-form-field appearance="outline">

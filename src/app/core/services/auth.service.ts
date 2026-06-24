@@ -1,4 +1,4 @@
-import { Injectable, computed, signal } from '@angular/core';
+import { Injectable, computed, inject, signal } from '@angular/core';
 import {
   AUTH_STORAGE_KEY,
   MOCK_ADMIN_LOGIN,
@@ -8,9 +8,11 @@ import {
   SESSION_TTL_MS,
 } from '../constants';
 import { AuthSession, Credentials, UserRole } from '../models';
+import { AdminStore } from '../../features/admin/admin.store';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
+  private readonly adminStore = inject(AdminStore);
   private readonly session = signal<AuthSession | undefined>(this.restore());
 
   readonly currentUser = computed(() => this.session());
@@ -46,6 +48,10 @@ export class AuthService {
     }
     if (credentials.login === MOCK_ADMIN_LOGIN && credentials.password === MOCK_ADMIN_PASSWORD) {
       return 'admin';
+    }
+    // Зарегистрированные пользователи входят с ролью работника.
+    if (this.adminStore.findByCredentials(credentials.login, credentials.password)) {
+      return 'worker';
     }
     return undefined;
   }
