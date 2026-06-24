@@ -1,5 +1,10 @@
+/** Учётка работника. */
 export const MOCK_LOGIN = '123';
 export const MOCK_PASSWORD = '123';
+
+/** Учётка администратора. */
+export const MOCK_ADMIN_LOGIN = '321';
+export const MOCK_ADMIN_PASSWORD = '321';
 
 export const AUTH_STORAGE_KEY = 'moneys.session';
 

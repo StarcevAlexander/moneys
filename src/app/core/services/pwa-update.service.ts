@@ -21,6 +21,15 @@ export class PwaUpdateService {
       void this.checkForUpdate();
     }, UPDATE_CHECK_INTERVAL_MS);
 
+    // iOS при открытии PWA с домашнего экрана будит процесс из фона без перезагрузки —
+    // bootstrap и стартовая проверка не выполняются заново. Поэтому проверяем обновление
+    // при каждом возврате приложения на передний план.
+    this.document.addEventListener('visibilitychange', () => {
+      if (this.document.visibilityState === 'visible') {
+        void this.checkForUpdate();
+      }
+    });
+
     // Как только новая версия готова — обновляемся автоматически.
     this.swUpdate.versionUpdates.subscribe((event) => {
       if (event.type === 'VERSION_READY') {

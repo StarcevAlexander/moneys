@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { SPLASH_MIN_DURATION_MS } from './core/constants';
 import { PwaUpdateService } from './core/services';
@@ -8,6 +8,7 @@ import { LoaderScreen } from './shared/components/loader-screen/loader-screen';
   selector: 'app-root',
   imports: [RouterOutlet, LoaderScreen],
   templateUrl: './app.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './app.scss',
 })
 export class App {

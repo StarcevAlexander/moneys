@@ -1,0 +1,136 @@
+<section class="users">
+  <header class="users__head">
+    <div>
+      <h1 class="users__title">Пользователи</h1>
+      <p class="users__subtitle">{{ users().length }} пользователей</p>
+    </div>
+    <button mat-flat-button type="button" (click)="toggleForm()">
+      <mat-icon>{{ formOpen() ? 'close' : 'person_add' }}</mat-icon>
+      {{ formOpen() ? 'Отмена' : 'Добавить' }}
+    </button>
+  </header>
+
+  @if (formOpen()) {
+    <mat-card class="users__form-card">
+      <form class="users__form" [formGroup]="form" (ngSubmit)="createUser()">
+        <mat-form-field appearance="outline">
+          <mat-label>ФИО</mat-label>
+          <input matInput formControlName="fullName" autocomplete="name" />
+          @if (form.controls.fullName.hasError('required') && form.controls.fullName.touched) {
+            <mat-error>Укажите ФИО</mat-error>
+          }
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>Логин</mat-label>
+          <input matInput formControlName="login" autocomplete="username" />
+          @if (form.controls.login.hasError('required') && form.controls.login.touched) {
+            <mat-error>Укажите логин</mat-error>
+          }
+        </mat-form-field>
+        <button mat-flat-button type="submit" class="users__submit">
+          <mat-icon>save</mat-icon>
+          Добавить пользователя
+        </button>
+      </form>
+    </mat-card>
+  }
+
+  <ul class="users__list">
+    @for (user of users(); track user.id) {
+      @let expanded = expandedId() === user.id;
+      <li class="user-card" [class.user-card--inactive]="!user.active">
+        <div class="user-card__row">
+          <button
+            type="button"
+            class="user-card__main"
+            [attr.aria-expanded]="expanded"
+            (click)="toggleExpand(user)"
+          >
+            <span class="user-card__avatar">
+              <mat-icon>account_circle</mat-icon>
+            </span>
+            <span class="user-card__body">
+              <span class="user-card__name">{{ user.fullName }}</span>
+              <span class="user-card__login">{{ user.login }}</span>
+            </span>
+            <mat-icon class="user-card__chevron">{{
+              expanded ? 'expand_less' : 'expand_more'
+            }}</mat-icon>
+          </button>
+          <mat-slide-toggle
+            [checked]="user.active"
+            (change)="toggleActive(user.id)"
+            aria-label="Активность пользователя"
+          />
+          <button
+            mat-icon-button
+            type="button"
+            class="user-card__remove"
+            aria-label="Удалить пользователя"
+            (click)="removeUser(user.id)"
+          >
+            <mat-icon>delete_outline</mat-icon>
+          </button>
+        </div>
+
+        @if (expanded) {
+          <div class="user-card__details">
+            @let orders = ordersOf(user.id);
+            <section class="user-orders">
+              <h3 class="user-card__section-title">Заявки · {{ orders.length }}</h3>
+              @if (orders.length) {
+                <ul class="user-orders__list">
+                  @for (order of orders; track order.id) {
+                    <li class="user-orders__item">
+                      <mat-icon class="user-orders__icon user-orders__icon--{{ order.status }}">
+                        {{ statusIcons[order.status] }}
+                      </mat-icon>
+                      <span class="user-orders__title">{{ order.title }}</span>
+                      <span class="user-orders__status user-orders__status--{{ order.status }}">
+                        {{ statusLabels[order.status] }}
+                      </span>
+                    </li>
+                  }
+                </ul>
+              } @else {
+                <p class="user-orders__empty">Назначенных заявок нет.</p>
+              }
+            </section>
+
+            <form class="user-bank" [formGroup]="bankForm" (ngSubmit)="saveBank(user.id)">
+              <h3 class="user-card__section-title">Банковские реквизиты</h3>
+              <mat-form-field appearance="outline">
+                <mat-label>Получатель</mat-label>
+                <input matInput formControlName="recipient" />
+              </mat-form-field>
+              <mat-form-field appearance="outline">
+                <mat-label>Банк</mat-label>
+                <input matInput formControlName="bankName" />
+              </mat-form-field>
+              <mat-form-field appearance="outline">
+                <mat-label>Номер карты</mat-label>
+                <input matInput formControlName="cardNumber" inputmode="numeric" />
+              </mat-form-field>
+              <div class="user-bank__row">
+                <mat-form-field appearance="outline">
+                  <mat-label>Расчётный счёт</mat-label>
+                  <input matInput formControlName="accountNumber" inputmode="numeric" />
+                </mat-form-field>
+                <mat-form-field appearance="outline">
+                  <mat-label>БИК</mat-label>
+                  <input matInput formControlName="bik" inputmode="numeric" />
+                </mat-form-field>
+              </div>
+              <button mat-flat-button type="submit" class="user-bank__submit">
+                <mat-icon>save</mat-icon>
+                Сохранить реквизиты
+              </button>
+            </form>
+          </div>
+        }
+      </li>
+    } @empty {
+      <li class="users__empty">Пользователей нет — добавь первого, командир.</li>
+    }
+  </ul>
+</section>

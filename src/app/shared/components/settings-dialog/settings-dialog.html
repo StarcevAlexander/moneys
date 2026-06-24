@@ -1,0 +1,146 @@
+<div class="settings__head">
+  <h2 mat-dialog-title>Настройки</h2>
+  <button mat-icon-button (click)="close()" aria-label="Закрыть">
+    <mat-icon>close</mat-icon>
+  </button>
+</div>
+
+<mat-dialog-content>
+  <mat-tab-group animationDuration="200ms" mat-stretch-tabs="false">
+    <!-- Профиль -->
+    <mat-tab label="Профиль">
+      <form class="settings__form" [formGroup]="profileForm" (ngSubmit)="saveProfile()">
+        <h3 class="settings__group-title">ФИО</h3>
+        <mat-form-field appearance="outline">
+          <mat-label>Фамилия</mat-label>
+          <input matInput formControlName="lastName" autocomplete="family-name" />
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>Имя</mat-label>
+          <input matInput formControlName="firstName" autocomplete="given-name" />
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>Отчество</mat-label>
+          <input matInput formControlName="middleName" autocomplete="additional-name" />
+        </mat-form-field>
+
+        <h3 class="settings__group-title">Паспортные данные</h3>
+        <div class="settings__row">
+          <mat-form-field appearance="outline">
+            <mat-label>Серия</mat-label>
+            <input matInput formControlName="passportSeries" inputmode="numeric" maxlength="4" />
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Номер</mat-label>
+            <input matInput formControlName="passportNumber" inputmode="numeric" maxlength="6" />
+          </mat-form-field>
+        </div>
+        <mat-form-field appearance="outline">
+          <mat-label>Кем выдан</mat-label>
+          <input matInput formControlName="passportIssuedBy" />
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>Дата выдачи</mat-label>
+          <input matInput formControlName="passportIssuedAt" placeholder="дд.мм.гггг" />
+        </mat-form-field>
+
+        <button mat-flat-button type="submit" class="settings__submit">
+          <mat-icon>save</mat-icon>
+          Сохранить
+        </button>
+      </form>
+    </mat-tab>
+
+    <!-- Реквизиты -->
+    @if (hasBank()) {
+      <mat-tab label="Реквизиты">
+        <form class="settings__form" [formGroup]="bankForm" (ngSubmit)="saveBank()">
+          <p class="settings__hint">Реквизиты для переводов и вывода денег.</p>
+          <mat-form-field appearance="outline">
+            <mat-label>Получатель</mat-label>
+            <input matInput formControlName="recipient" autocomplete="name" />
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Банк</mat-label>
+            <input matInput formControlName="bankName" />
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Номер карты</mat-label>
+            <input matInput formControlName="cardNumber" inputmode="numeric" />
+          </mat-form-field>
+          <div class="settings__row">
+            <mat-form-field appearance="outline">
+              <mat-label>Расчётный счёт</mat-label>
+              <input matInput formControlName="accountNumber" inputmode="numeric" />
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>БИК</mat-label>
+              <input matInput formControlName="bik" inputmode="numeric" />
+            </mat-form-field>
+          </div>
+          <button mat-flat-button type="submit" class="settings__submit">
+            <mat-icon>save</mat-icon>
+            Сохранить
+          </button>
+        </form>
+      </mat-tab>
+    }
+
+    <!-- Тема -->
+    <mat-tab label="Тема">
+      <div class="settings__themes">
+        @for (theme of themes; track theme.id) {
+          <button
+            type="button"
+            class="theme-card"
+            [class.theme-card--active]="theme.id === currentTheme()"
+            (click)="selectTheme(theme.id)"
+            [attr.aria-pressed]="theme.id === currentTheme()"
+          >
+            <span class="theme-card__swatch" [style.background]="theme.background">
+              <span class="theme-card__dot" [style.background]="theme.accent"></span>
+            </span>
+            <span class="theme-card__label">{{ theme.label }}</span>
+            @if (theme.id === currentTheme()) {
+              <mat-icon class="theme-card__check">check_circle</mat-icon>
+            }
+          </button>
+        }
+      </div>
+    </mat-tab>
+
+    <!-- Техподдержка -->
+    <mat-tab label="Техподдержка">
+      <form class="settings__form" [formGroup]="supportForm" (ngSubmit)="sendSupport()">
+        <p class="settings__hint">Опишите проблему или вопрос — мы свяжемся с вами.</p>
+        <mat-form-field appearance="outline">
+          <mat-label>Сообщение</mat-label>
+          <textarea
+            matInput
+            formControlName="message"
+            rows="6"
+            placeholder="Расскажите, что случилось…"
+          ></textarea>
+          @if (
+            supportForm.controls.message.hasError('required') &&
+            supportForm.controls.message.touched
+          ) {
+            <mat-error>Введите сообщение</mat-error>
+          }
+          @if (supportForm.controls.message.hasError('minlength')) {
+            <mat-error>Минимум 10 символов</mat-error>
+          }
+        </mat-form-field>
+        <button
+          mat-flat-button
+          type="submit"
+          class="settings__submit"
+          [disabled]="supportSending()"
+        >
+          <mat-icon>send</mat-icon>
+          Отправить
+        </button>
+      </form>
+    </mat-tab>
+  </mat-tab-group>
+</mat-dialog-content>

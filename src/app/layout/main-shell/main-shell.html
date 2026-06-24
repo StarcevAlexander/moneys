@@ -8,6 +8,9 @@
       <span class="shell__title">Moneys</span>
     </div>
     <span class="shell__spacer"></span>
+    @if (isAdmin()) {
+      <span class="shell__role">Админ</span>
+    }
     <span class="shell__user">
       <mat-icon inline>account_circle</mat-icon>
       {{ user()?.login }}
@@ -22,7 +25,7 @@
   </main>
 
   <nav class="shell__nav" aria-label="Основная навигация">
-    @for (tab of tabs; track tab.path) {
+    @for (tab of tabs(); track tab.path) {
       <a
         class="shell__tab"
         [routerLink]="tab.path"

@@ -1,4 +1,4 @@
-import { Component, computed, inject, input } from '@angular/core';
+import { Component, computed, inject, input, ChangeDetectionStrategy } from '@angular/core';
 import { Location } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
@@ -11,6 +11,7 @@ import { JOB_POINTS } from '../jobs.data';
   selector: 'app-job-detail',
   imports: [RouterLink, MatButtonModule, MatIconModule],
   templateUrl: './job-detail.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './job-detail.scss',
 })
 export class JobDetail {

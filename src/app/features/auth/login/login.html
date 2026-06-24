@@ -55,7 +55,16 @@
       </button>
     </form>
 
-    <div class="login__hint">Тестовый доступ — логин <b>123</b>, пароль <b>123</b></div>
+    <div class="login__hint">
+      <div>
+        Работник — логин <b>{{ workerLogin }}</b
+        >, пароль <b>{{ workerPassword }}</b>
+      </div>
+      <div>
+        Админ — логин <b>{{ adminLogin }}</b
+        >, пароль <b>{{ adminPassword }}</b>
+      </div>
+    </div>
 
     <div class="login__install">
       <app-install-button />

@@ -42,6 +42,18 @@
   flex: 1 1 auto;
 }
 
+.shell__role {
+  margin-right: 0.5rem;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  background: var(--shell-accent-soft);
+  color: var(--shell-accent);
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
 .shell__user {
   display: inline-flex;
   align-items: center;

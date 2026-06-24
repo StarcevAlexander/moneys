@@ -1,4 +1,4 @@
-import { Component, computed, inject, input } from '@angular/core';
+import { Component, computed, inject, input, ChangeDetectionStrategy } from '@angular/core';
 import { Location } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
@@ -22,6 +22,7 @@ const WITHDRAWABLE: ReadonlySet<ApplicationStatus> = new Set<ApplicationStatus>(
   selector: 'app-application-detail',
   imports: [RouterLink, MatButtonModule, MatIconModule],
   templateUrl: './application-detail.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './application-detail.scss',
 })
 export class ApplicationDetail {

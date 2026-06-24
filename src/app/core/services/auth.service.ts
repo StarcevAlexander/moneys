@@ -1,6 +1,13 @@
 import { Injectable, computed, signal } from '@angular/core';
-import { AUTH_STORAGE_KEY, MOCK_LOGIN, MOCK_PASSWORD, SESSION_TTL_MS } from '../constants';
-import { AuthSession, Credentials } from '../models';
+import {
+  AUTH_STORAGE_KEY,
+  MOCK_ADMIN_LOGIN,
+  MOCK_ADMIN_PASSWORD,
+  MOCK_LOGIN,
+  MOCK_PASSWORD,
+  SESSION_TTL_MS,
+} from '../constants';
+import { AuthSession, Credentials, UserRole } from '../models';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -8,15 +15,18 @@ export class AuthService {
 
   readonly currentUser = computed(() => this.session());
   readonly isAuthenticated = computed(() => !!this.session());
+  readonly role = computed<UserRole | undefined>(() => this.session()?.role);
+  readonly isAdmin = computed(() => this.role() === 'admin');
 
   login(credentials: Credentials): boolean {
-    const valid = credentials.login === MOCK_LOGIN && credentials.password === MOCK_PASSWORD;
-    if (!valid) {
+    const role = this.resolveRole(credentials);
+    if (!role) {
       return false;
     }
 
     const session: AuthSession = {
       login: credentials.login,
+      role,
       loggedInAt: Date.now(),
     };
     localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(session));
@@ -27,6 +37,17 @@ export class AuthService {
   logout(): void {
     localStorage.removeItem(AUTH_STORAGE_KEY);
     this.session.set(undefined);
+  }
+
+  /** Определяет роль по учётным данным или undefined, если они неверны. */
+  private resolveRole(credentials: Credentials): UserRole | undefined {
+    if (credentials.login === MOCK_LOGIN && credentials.password === MOCK_PASSWORD) {
+      return 'worker';
+    }
+    if (credentials.login === MOCK_ADMIN_LOGIN && credentials.password === MOCK_ADMIN_PASSWORD) {
+      return 'admin';
+    }
+    return undefined;
   }
 
   private restore(): AuthSession | undefined {
@@ -49,7 +70,7 @@ export class AuthService {
     }
   }
 
-  /** Сессия валидна, если это объект с непустым login и числовым loggedInAt. */
+  /** Сессия валидна, если это объект с непустым login, корректной ролью и числовым loggedInAt. */
   private isValidSession(value: unknown): value is AuthSession {
     if (typeof value !== 'object' || value === null) {
       return false;
@@ -58,6 +79,7 @@ export class AuthService {
     return (
       typeof session.login === 'string' &&
       session.login.length > 0 &&
+      (session.role === 'worker' || session.role === 'admin') &&
       typeof session.loggedInAt === 'number' &&
       Number.isFinite(session.loggedInAt)
     );

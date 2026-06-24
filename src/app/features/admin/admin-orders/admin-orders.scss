@@ -1,0 +1,220 @@
+.orders {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.orders__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.orders__title {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.orders__subtitle {
+  margin: 0.2rem 0 0;
+  color: var(--shell-muted);
+  font-size: 0.9rem;
+}
+
+.orders__form-card {
+  padding: 1rem;
+  border-radius: 18px;
+  background: var(--shell-accent-soft);
+  border: 1px solid var(--shell-border);
+}
+
+.orders__form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.orders__row {
+  display: flex;
+  gap: 0.75rem;
+
+  mat-form-field {
+    flex: 1 1 0;
+  }
+}
+
+.orders__submit {
+  align-self: flex-start;
+  margin-top: 0.25rem;
+}
+
+.orders__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.orders__empty {
+  padding: 1.25rem;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--shell-muted);
+  text-align: center;
+}
+
+.order-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 0.9rem 1rem;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.03);
+  border-left: 3px solid var(--shell-tab);
+}
+
+.order-card--assigned {
+  border-left-color: #3ddc84;
+}
+
+.order-card--done {
+  border-left-color: #4dabf7;
+}
+
+.order-card--paid {
+  border-left-color: #ffd24d;
+}
+
+.order-card__main {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+
+.order-card__icon {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  flex: none;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.06);
+
+  mat-icon {
+    color: var(--shell-muted);
+  }
+}
+
+.order-card__body {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.order-card__title {
+  font-weight: 600;
+}
+
+.order-card__company {
+  margin-top: 0.1rem;
+  color: var(--shell-muted);
+  font-size: 0.85rem;
+}
+
+.order-card__meta {
+  margin-top: 0.15rem;
+  color: var(--shell-muted);
+  font-size: 0.8rem;
+}
+
+.order-card__payout {
+  color: #3ddc84;
+  font-weight: 700;
+}
+
+.order-card__remove {
+  flex: none;
+  color: var(--shell-muted);
+}
+
+.order-card__assign {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+.order-card__select {
+  flex: 2 1 200px;
+  min-width: 160px;
+}
+
+.order-card__status-select {
+  flex: 1 1 150px;
+  min-width: 140px;
+}
+
+.order-card__status-icon {
+  margin-right: 0.4rem;
+  vertical-align: middle;
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  color: var(--shell-muted);
+}
+
+.order-card__status-icon--assigned {
+  color: #3ddc84;
+}
+
+.order-card__status-icon--done {
+  color: #4dabf7;
+}
+
+.order-card__status-icon--paid {
+  color: #ffd24d;
+}
+
+// Поисковая строка внутри панели выпадашки назначения.
+// Панель рендерится в overlay вне компонента — стилизуем глобально по panelClass.
+::ng-deep .assign-panel {
+  .assign-search {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.85rem;
+    background: var(--mat-sys-surface-container-high);
+    border-bottom: 1px solid var(--shell-border);
+
+    mat-icon {
+      flex: none;
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+      color: var(--shell-muted);
+    }
+  }
+
+  .assign-search__input {
+    flex: 1 1 auto;
+    min-width: 0;
+    border: none;
+    outline: none;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+  }
+
+  .assign-empty {
+    padding: 0.75rem 0.85rem;
+    color: var(--shell-muted);
+    font-size: 0.85rem;
+    text-align: center;
+  }
+}

@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { PwaInstallService } from '../../../core/services';
@@ -7,6 +7,7 @@ import { PwaInstallService } from '../../../core/services';
   selector: 'app-install-button',
   imports: [MatButtonModule, MatIconModule],
   templateUrl: './install-button.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './install-button.scss',
 })
 export class InstallButton {

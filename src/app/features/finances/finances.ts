@@ -1,4 +1,4 @@
-import { Component, computed, signal } from '@angular/core';
+import { Component, computed, signal, ChangeDetectionStrategy } from '@angular/core';
 import { DecimalPipe } from '@angular/common';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatIconModule } from '@angular/material/icon';
@@ -12,6 +12,7 @@ import { IncomePeriod, IncomeSlice } from './finances.models';
   selector: 'app-finances',
   imports: [DecimalPipe, MatButtonToggleModule, MatIconModule, Chart],
   templateUrl: './finances.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './finances.scss',
 })
 export class Finances {

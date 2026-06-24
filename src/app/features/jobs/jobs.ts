@@ -1,4 +1,12 @@
-import { afterNextRender, Component, ElementRef, inject, signal, viewChild } from '@angular/core';
+import {
+  afterNextRender,
+  Component,
+  ElementRef,
+  inject,
+  signal,
+  viewChild,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { IRKUTSK_CENTER, MAP_DEFAULT_ZOOM } from '../../core/constants';
@@ -10,6 +18,7 @@ import { JobPoint } from './jobs.models';
   selector: 'app-jobs',
   imports: [RouterLink, MatIconModule],
   templateUrl: './jobs.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './jobs.scss',
 })
 export class Jobs {

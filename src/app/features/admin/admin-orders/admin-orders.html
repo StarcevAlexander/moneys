@@ -1,0 +1,147 @@
+<section class="orders">
+  <header class="orders__head">
+    <div>
+      <h1 class="orders__title">Заявки</h1>
+      <p class="orders__subtitle">{{ orders().length }} заявок · назначение на пользователей</p>
+    </div>
+    <button mat-flat-button type="button" (click)="toggleForm()">
+      <mat-icon>{{ formOpen() ? 'close' : 'add' }}</mat-icon>
+      {{ formOpen() ? 'Отмена' : 'Новая заявка' }}
+    </button>
+  </header>
+
+  @if (formOpen()) {
+    <mat-card class="orders__form-card">
+      <form class="orders__form" [formGroup]="form" (ngSubmit)="createOrder()">
+        <div class="orders__row">
+          <mat-form-field appearance="outline">
+            <mat-label>Название</mat-label>
+            <input matInput formControlName="title" />
+            @if (form.controls.title.hasError('required') && form.controls.title.touched) {
+              <mat-error>Укажите название</mat-error>
+            }
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Компания</mat-label>
+            <input matInput formControlName="company" />
+            @if (form.controls.company.hasError('required') && form.controls.company.touched) {
+              <mat-error>Укажите компанию</mat-error>
+            }
+          </mat-form-field>
+        </div>
+        <mat-form-field appearance="outline">
+          <mat-label>Адрес</mat-label>
+          <input matInput formControlName="address" />
+        </mat-form-field>
+        <div class="orders__row">
+          <mat-form-field appearance="outline">
+            <mat-label>Оплата</mat-label>
+            <input matInput formControlName="payout" placeholder="₽ 2 800 / смена" />
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>График</mat-label>
+            <input matInput formControlName="schedule" placeholder="Сегодня · 09:00–18:00" />
+          </mat-form-field>
+        </div>
+        <mat-form-field appearance="outline">
+          <mat-label>Описание</mat-label>
+          <textarea matInput formControlName="description" rows="3"></textarea>
+        </mat-form-field>
+        <button mat-flat-button type="submit" class="orders__submit">
+          <mat-icon>save</mat-icon>
+          Создать заявку
+        </button>
+      </form>
+    </mat-card>
+  }
+
+  <ul class="orders__list">
+    @for (order of orders(); track order.id) {
+      <li class="order-card order-card--{{ order.status }}">
+        <div class="order-card__main">
+          <div class="order-card__icon">
+            <mat-icon>{{ statusIcons[order.status] }}</mat-icon>
+          </div>
+          <div class="order-card__body">
+            <div class="order-card__title">{{ order.title }}</div>
+            <div class="order-card__company">{{ order.company }}</div>
+            @if (order.address) {
+              <div class="order-card__meta">{{ order.address }}</div>
+            }
+            <div class="order-card__meta">
+              @if (order.payout) {
+                <span class="order-card__payout">{{ order.payout }}</span>
+              }
+              @if (order.schedule) {
+                <span>· {{ order.schedule }}</span>
+              }
+            </div>
+          </div>
+          <button
+            mat-icon-button
+            type="button"
+            class="order-card__remove"
+            aria-label="Удалить заявку"
+            (click)="removeOrder(order.id)"
+          >
+            <mat-icon>delete_outline</mat-icon>
+          </button>
+        </div>
+
+        <div class="order-card__assign">
+          <mat-form-field appearance="outline" subscriptSizing="dynamic" class="order-card__select">
+            <mat-label>Назначить на</mat-label>
+            <mat-select
+              panelClass="assign-panel"
+              [value]="order.assignedUserId ?? ''"
+              (selectionChange)="onAssign(order.id, $event.value)"
+              (openedChange)="$event && resetSearch()"
+            >
+              <div class="assign-search">
+                <mat-icon>search</mat-icon>
+                <input
+                  type="text"
+                  class="assign-search__input"
+                  placeholder="Поиск исполнителя"
+                  [value]="query()"
+                  (input)="onSearch($event)"
+                  (keydown)="$event.stopPropagation()"
+                  (click)="$event.stopPropagation()"
+                />
+              </div>
+              <mat-option value="">Не назначена</mat-option>
+              @for (user of assignableFor(order); track user.id) {
+                <mat-option [value]="user.id">{{ user.fullName }}</mat-option>
+              } @empty {
+                <div class="assign-empty">Ничего не найдено</div>
+              }
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field
+            appearance="outline"
+            subscriptSizing="dynamic"
+            class="order-card__status-select"
+          >
+            <mat-label>Статус</mat-label>
+            <mat-select
+              [value]="order.status"
+              (selectionChange)="onStatusChange(order.id, $event.value)"
+            >
+              @for (status of statuses; track status) {
+                <mat-option [value]="status">
+                  <mat-icon class="order-card__status-icon order-card__status-icon--{{ status }}">
+                    {{ statusIcons[status] }}
+                  </mat-icon>
+                  {{ statusLabels[status] }}
+                </mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+        </div>
+      </li>
+    } @empty {
+      <li class="orders__empty">Заявок пока нет — заведи первую, командир.</li>
+    }
+  </ul>
+</section>
