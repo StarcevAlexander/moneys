@@ -3,17 +3,148 @@
 
 html {
   height: 100%;
-  color-scheme: dark;
+}
+
+// Базовые палитры Material для каждой темы.
+@mixin mat-palette($primary, $tertiary) {
   @include mat.theme(
     (
       color: (
-        primary: mat.$green-palette,
-        tertiary: mat.$yellow-palette,
+        primary: $primary,
+        tertiary: $tertiary,
       ),
       typography: Roboto,
       density: 0,
     )
   );
+}
+
+// Тема «Изумруд» — тёмно-зелёная (по умолчанию).
+html[data-theme='emerald'] {
+  color-scheme: dark;
+  @include mat-palette(mat.$green-palette, mat.$yellow-palette);
+
+  --shell-bg: radial-gradient(circle at 50% -10%, #0d4f31 0%, #062a1c 40%, #03150e 100%);
+  --shell-bar-bg: rgba(3, 21, 14, 0.85);
+  --shell-nav-bg: rgba(3, 21, 14, 0.92);
+  --shell-border: rgba(255, 246, 207, 0.12);
+  --shell-text: #f4f6f3;
+  --shell-muted: #c7d2cb;
+  --shell-tab: #7f928a;
+  --shell-accent: #ffd24d;
+  --shell-accent-soft: rgba(255, 210, 77, 0.12);
+}
+
+// Тема «Светлая».
+html[data-theme='light'] {
+  color-scheme: light;
+  @include mat-palette(mat.$green-palette, mat.$yellow-palette);
+
+  --shell-bg: radial-gradient(circle at 50% -10%, #ffffff 0%, #eef4f0 45%, #e2ebe5 100%);
+  --shell-bar-bg: rgba(255, 255, 255, 0.85);
+  --shell-nav-bg: rgba(255, 255, 255, 0.92);
+  --shell-border: rgba(13, 79, 49, 0.12);
+  --shell-text: #10231a;
+  --shell-muted: #496054;
+  --shell-tab: #7a8b81;
+  --shell-accent: #0d4f31;
+  --shell-accent-soft: rgba(13, 79, 49, 0.1);
+}
+
+// Тема «Океан» — тёмно-синяя.
+html[data-theme='ocean'] {
+  color-scheme: dark;
+  @include mat-palette(mat.$azure-palette, mat.$cyan-palette);
+
+  --shell-bg: radial-gradient(circle at 50% -10%, #134e6f 0%, #0a2e44 40%, #061620 100%);
+  --shell-bar-bg: rgba(6, 22, 32, 0.85);
+  --shell-nav-bg: rgba(6, 22, 32, 0.92);
+  --shell-border: rgba(170, 224, 255, 0.12);
+  --shell-text: #eef6fb;
+  --shell-muted: #bcd4e0;
+  --shell-tab: #748a96;
+  --shell-accent: #4dd0e1;
+  --shell-accent-soft: rgba(77, 208, 225, 0.14);
+}
+
+// Тема «Аметист» — тёмно-фиолетовая.
+html[data-theme='royal'] {
+  color-scheme: dark;
+  @include mat-palette(mat.$violet-palette, mat.$magenta-palette);
+
+  --shell-bg: radial-gradient(circle at 50% -10%, #4a2d6b 0%, #2a1843 40%, #160a24 100%);
+  --shell-bar-bg: rgba(22, 10, 36, 0.85);
+  --shell-nav-bg: rgba(22, 10, 36, 0.92);
+  --shell-border: rgba(224, 198, 255, 0.12);
+  --shell-text: #f3eefb;
+  --shell-muted: #d0c2e0;
+  --shell-tab: #8a7a96;
+  --shell-accent: #c792ea;
+  --shell-accent-soft: rgba(199, 146, 234, 0.16);
+}
+
+// Тема «Закат» — тёмно-оранжевая.
+html[data-theme='sunset'] {
+  color-scheme: dark;
+  @include mat-palette(mat.$orange-palette, mat.$yellow-palette);
+
+  --shell-bg: radial-gradient(circle at 50% -10%, #7a3410 0%, #401a06 40%, #1a0a02 100%);
+  --shell-bar-bg: rgba(26, 10, 2, 0.85);
+  --shell-nav-bg: rgba(26, 10, 2, 0.92);
+  --shell-border: rgba(255, 214, 170, 0.12);
+  --shell-text: #fbf1ea;
+  --shell-muted: #e0c6b6;
+  --shell-tab: #96827a;
+  --shell-accent: #ff8a3d;
+  --shell-accent-soft: rgba(255, 138, 61, 0.14);
+}
+
+// Тема «Вишня» — тёмно-красная.
+html[data-theme='cherry'] {
+  color-scheme: dark;
+  @include mat-palette(mat.$red-palette, mat.$rose-palette);
+
+  --shell-bg: radial-gradient(circle at 50% -10%, #6b1f2e 0%, #3a101a 40%, #1c0509 100%);
+  --shell-bar-bg: rgba(28, 5, 9, 0.85);
+  --shell-nav-bg: rgba(28, 5, 9, 0.92);
+  --shell-border: rgba(255, 198, 208, 0.12);
+  --shell-text: #fbeef0;
+  --shell-muted: #e0c2c8;
+  --shell-tab: #967a80;
+  --shell-accent: #ff6b81;
+  --shell-accent-soft: rgba(255, 107, 129, 0.14);
+}
+
+// Тема «Сакура» — светлая розовая.
+html[data-theme='sakura'] {
+  color-scheme: light;
+  @include mat-palette(mat.$rose-palette, mat.$magenta-palette);
+
+  --shell-bg: radial-gradient(circle at 50% -10%, #ffffff 0%, #ffeef4 45%, #fbdde7 100%);
+  --shell-bar-bg: rgba(255, 255, 255, 0.85);
+  --shell-nav-bg: rgba(255, 255, 255, 0.92);
+  --shell-border: rgba(214, 69, 122, 0.12);
+  --shell-text: #2a121d;
+  --shell-muted: #6b4a57;
+  --shell-tab: #9b7d88;
+  --shell-accent: #d6457a;
+  --shell-accent-soft: rgba(214, 69, 122, 0.1);
+}
+
+// Тема «Полночь» — глубокая сине-индиго.
+html[data-theme='midnight'] {
+  color-scheme: dark;
+  @include mat-palette(mat.$blue-palette, mat.$violet-palette);
+
+  --shell-bg: radial-gradient(circle at 50% -10%, #1e2a5e 0%, #121a3a 40%, #080c1c 100%);
+  --shell-bar-bg: rgba(8, 12, 28, 0.85);
+  --shell-nav-bg: rgba(8, 12, 28, 0.92);
+  --shell-border: rgba(190, 205, 255, 0.12);
+  --shell-text: #eef1fb;
+  --shell-muted: #c2cae0;
+  --shell-tab: #7a8196;
+  --shell-accent: #6c8cff;
+  --shell-accent-soft: rgba(108, 140, 255, 0.16);
 }
 
 * {
@@ -23,8 +154,8 @@ html {
 body {
   margin: 0;
   min-height: 100%;
-  background-color: #03150e;
-  color: #f4f6f3;
+  background-color: var(--mat-sys-background, #03150e);
+  color: var(--shell-text, #f4f6f3);
   font: var(--mat-sys-body-medium);
   -webkit-font-smoothing: antialiased;
   -webkit-tap-highlight-color: transparent;

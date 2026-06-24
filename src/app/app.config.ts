@@ -14,7 +14,7 @@ import { provideServiceWorker } from '@angular/service-worker';
 import { MAT_DATE_LOCALE } from '@angular/material/core';
 
 import { routes } from './app.routes';
-import { PwaInstallService } from './core/services';
+import { PwaInstallService, ThemeService } from './core/services';
 
 registerLocaleData(localeRu);
 
@@ -30,8 +30,10 @@ export const appConfig: ApplicationConfig = {
     { provide: LOCALE_ID, useValue: 'ru' },
     { provide: MAT_DATE_LOCALE, useValue: 'ru-RU' },
     // Поднимаем сервис установки до старта UI, чтобы перехватить beforeinstallprompt с первой секунды.
+    // ThemeService — чтобы сохранённая тема применилась сразу, а не при открытии настроек.
     provideAppInitializer(() => {
       inject(PwaInstallService);
+      inject(ThemeService);
     }),
   ],
 };
