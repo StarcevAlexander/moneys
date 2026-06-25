@@ -31,10 +31,23 @@
             }
           </mat-form-field>
         </div>
-        <mat-form-field appearance="outline">
-          <mat-label>Адрес</mat-label>
-          <input [formField]="form.address" matInput ngDefaultControl />
-        </mat-form-field>
+        <div class="orders__row">
+          <mat-form-field appearance="outline">
+            <mat-label>Город</mat-label>
+            <mat-select [formField]="form.city">
+              @for (city of allCities; track city) {
+                <mat-option [value]="city">{{ city }}</mat-option>
+              }
+            </mat-select>
+            @if (form.city().touched() && form.city().invalid()) {
+              <mat-error>Укажите город</mat-error>
+            }
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Адрес</mat-label>
+            <input [formField]="form.address" matInput ngDefaultControl />
+          </mat-form-field>
+        </div>
         <div class="orders__row">
           <mat-form-field appearance="outline">
             <mat-label>Оплата</mat-label>
@@ -101,9 +114,13 @@
           <div class="order-card__body">
             <div class="order-card__title">{{ order.title }}</div>
             <div class="order-card__company">{{ order.company }}</div>
-            @if (order.address) {
-              <div class="order-card__meta">{{ order.address }}</div>
-            }
+            <div class="order-card__meta order-card__meta--city">
+              <mat-icon class="order-card__city-icon">location_on</mat-icon>
+              {{ order.city }}
+              @if (order.address) {
+                <span>· {{ order.address }}</span>
+              }
+            </div>
             <div class="order-card__meta">
               @if (order.payout) {
                 <span class="order-card__payout">{{ order.payout }}</span>
@@ -191,6 +208,109 @@
             </mat-select>
           </mat-form-field>
         </div>
+
+        @if (order.status === 'done') {
+          <div class="order-rate">
+            @if (!order.assignedUserId) {
+              <p class="order-rate__hint">
+                Назначьте исполнителя, чтобы оценить выполненную работу.
+              </p>
+            } @else if (ratingForOrder(order); as rating) {
+              <div class="order-rate__done">
+                <span class="order-rate__done-head">
+                  <mat-icon class="order-rate__done-icon">grade</mat-icon>
+                  Работа оценена · {{ assigneeName(order) }}
+                </span>
+                <span class="order-rate__scores">
+                  <span class="order-rate__score">
+                    <mat-icon class="order-rate__score-icon">event_available</mat-icon>
+                    {{ rating.reliability }}/{{ ratingScale.length }}
+                  </span>
+                  <span class="order-rate__score">
+                    <mat-icon class="order-rate__score-icon">workspace_premium</mat-icon>
+                    {{ rating.performance }}/{{ ratingScale.length }}
+                  </span>
+                </span>
+                @if (rating.comment) {
+                  <p class="order-rate__comment">{{ rating.comment }}</p>
+                }
+                <button
+                  mat-stroked-button
+                  type="button"
+                  class="order-rate__again"
+                  (click)="removeRating(order.assignedUserId!, rating.id)"
+                >
+                  <mat-icon>refresh</mat-icon>
+                  Переоценить
+                </button>
+              </div>
+            } @else {
+              @let draft = ratingDraft(order.id);
+              <form class="order-rate__form" (submit)="$event.preventDefault(); saveRating(order)">
+                <span class="order-rate__title">Оценить работу · {{ assigneeName(order) }}</span>
+
+                <div class="order-rate__field">
+                  <span class="order-rate__label">
+                    {{ reliabilityLabel }}
+                    <span class="order-rate__hint-inline">{{ reliabilityHint }}</span>
+                  </span>
+                  <span class="order-rate__stars">
+                    @for (star of ratingScale; track star) {
+                      <button
+                        type="button"
+                        class="order-rate__star"
+                        [class.order-rate__star--on]="star <= draft.reliability"
+                        [attr.aria-label]="reliabilityLabel + ': ' + star"
+                        (click)="setReliability(order.id, star)"
+                      >
+                        <mat-icon>{{
+                          star <= draft.reliability ? 'star' : 'star_border'
+                        }}</mat-icon>
+                      </button>
+                    }
+                  </span>
+                </div>
+
+                <div class="order-rate__field">
+                  <span class="order-rate__label">
+                    {{ performanceLabel }}
+                    <span class="order-rate__hint-inline">{{ performanceHint }}</span>
+                  </span>
+                  <span class="order-rate__stars">
+                    @for (star of ratingScale; track star) {
+                      <button
+                        type="button"
+                        class="order-rate__star"
+                        [class.order-rate__star--on]="star <= draft.performance"
+                        [attr.aria-label]="performanceLabel + ': ' + star"
+                        (click)="setPerformance(order.id, star)"
+                      >
+                        <mat-icon>{{
+                          star <= draft.performance ? 'star' : 'star_border'
+                        }}</mat-icon>
+                      </button>
+                    }
+                  </span>
+                </div>
+
+                <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                  <mat-label>Комментарий</mat-label>
+                  <textarea
+                    matInput
+                    rows="2"
+                    [value]="draft.comment"
+                    (input)="setRatingComment(order.id, $event)"
+                  ></textarea>
+                </mat-form-field>
+
+                <button mat-flat-button type="submit" class="order-rate__submit">
+                  <mat-icon>grade</mat-icon>
+                  Выставить оценку
+                </button>
+              </form>
+            }
+          </div>
+        }
       </li>
     } @empty {
       <li class="orders__empty">

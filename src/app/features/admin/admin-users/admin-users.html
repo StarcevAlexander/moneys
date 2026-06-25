@@ -78,6 +78,7 @@
   <ul class="users__list">
     @for (user of users(); track user.id) {
       @let expanded = expandedId() === user.id;
+      @let summary = summaryOf(user.id);
       <li class="user-card" [class.user-card--inactive]="!user.active">
         <div class="user-card__row">
           <button
@@ -97,6 +98,16 @@
                   · {{ user.city }}
                 }
               </span>
+              @if (summary.count) {
+                <span
+                  class="user-card__rating"
+                  [title]="'Рейтинг по ' + summary.count + ' оценкам'"
+                >
+                  <mat-icon class="user-card__rating-star">star</mat-icon>
+                  {{ summary.overall | number: '1.1-1' }}
+                  <span class="user-card__rating-count">· {{ summary.count }}</span>
+                </span>
+              }
             </span>
             <mat-icon class="user-card__chevron">{{
               expanded ? 'expand_less' : 'expand_more'
@@ -126,6 +137,21 @@
 
         @if (expanded) {
           <div class="user-card__details">
+            <section class="user-city">
+              <mat-form-field
+                appearance="outline"
+                subscriptSizing="dynamic"
+                class="user-city__field"
+              >
+                <mat-label>Город</mat-label>
+                <mat-select [value]="user.city" (selectionChange)="setCity(user.id, $event.value)">
+                  @for (city of allCities; track city) {
+                    <mat-option [value]="city">{{ city }}</mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+            </section>
+
             @let orders = ordersOf(user.id);
             <section class="user-orders">
               <h3 class="user-card__section-title">Заявки · {{ orders.length }}</h3>
@@ -145,6 +171,93 @@
                 </ul>
               } @else {
                 <p class="user-orders__empty">Назначенных заявок нет.</p>
+              }
+            </section>
+
+            <section class="user-rating">
+              <h3 class="user-card__section-title">Рейтинг работника</h3>
+
+              <div class="user-rating__summary">
+                <div class="rating-metric">
+                  <span class="rating-metric__label">
+                    {{ reliabilityLabel }}
+                    <span class="rating-metric__hint">{{ reliabilityHint }}</span>
+                  </span>
+                  <span class="rating-metric__stars">
+                    @for (star of ratingScale; track star) {
+                      <mat-icon
+                        class="rating-metric__star"
+                        [class.rating-metric__star--on]="star <= summary.reliability"
+                      >
+                        {{ star <= summary.reliability ? 'star' : 'star_border' }}
+                      </mat-icon>
+                    }
+                    <span class="rating-metric__value">
+                      {{ summary.count ? (summary.reliability | number: '1.1-1') : '—' }}
+                    </span>
+                  </span>
+                </div>
+                <div class="rating-metric">
+                  <span class="rating-metric__label">
+                    {{ performanceLabel }}
+                    <span class="rating-metric__hint">{{ performanceHint }}</span>
+                  </span>
+                  <span class="rating-metric__stars">
+                    @for (star of ratingScale; track star) {
+                      <mat-icon
+                        class="rating-metric__star"
+                        [class.rating-metric__star--on]="star <= summary.performance"
+                      >
+                        {{ star <= summary.performance ? 'star' : 'star_border' }}
+                      </mat-icon>
+                    }
+                    <span class="rating-metric__value">
+                      {{ summary.count ? (summary.performance | number: '1.1-1') : '—' }}
+                    </span>
+                  </span>
+                </div>
+              </div>
+
+              @if (user.ratings?.length) {
+                <ul class="rating-list">
+                  @for (rating of user.ratings; track rating.id) {
+                    <li class="rating-list__item">
+                      <div class="rating-list__head">
+                        <span class="rating-list__scores">
+                          <span class="rating-list__score">
+                            <mat-icon class="rating-list__score-icon">event_available</mat-icon>
+                            {{ rating.reliability }}/{{ ratingScale.length }}
+                          </span>
+                          <span class="rating-list__score">
+                            <mat-icon class="rating-list__score-icon">workspace_premium</mat-icon>
+                            {{ rating.performance }}/{{ ratingScale.length }}
+                          </span>
+                        </span>
+                        <button
+                          mat-icon-button
+                          type="button"
+                          class="rating-list__remove"
+                          aria-label="Удалить оценку"
+                          (click)="removeRating(user.id, rating.id)"
+                        >
+                          <mat-icon>close</mat-icon>
+                        </button>
+                      </div>
+                      @let title = orderTitle(rating.orderId);
+                      @if (title) {
+                        <span class="rating-list__order">{{ title }}</span>
+                      }
+                      @if (rating.comment) {
+                        <p class="rating-list__comment">{{ rating.comment }}</p>
+                      }
+                    </li>
+                  }
+                </ul>
+              } @else {
+                <p class="user-orders__empty">
+                  Оценок пока нет — они появятся, когда работы перейдут в «Выполнена» и будут
+                  оценены на вкладке «Заявки».
+                </p>
               }
             </section>
 

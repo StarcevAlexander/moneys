@@ -12,17 +12,27 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { debounceTime } from 'rxjs';
 import {
+  ADMIN_ORDER_FLOW,
   ADMIN_ORDER_STATUS_ICONS,
   ADMIN_ORDER_STATUS_LABELS,
   ADMIN_ORDER_STATUSES,
   ASSIGN_SEARCH_DEBOUNCE_MS,
+  CITIES,
+  EMPTY_RATING_DRAFT,
   ORDER_ASSIGNED_MESSAGE,
   ORDER_CREATED_MESSAGE,
   ORDER_REMOVED_MESSAGE,
   ORDER_STATUS_CHANGED_MESSAGE,
   ORDER_UNASSIGNED_MESSAGE,
+  RATING_PERFORMANCE_HINT,
+  RATING_PERFORMANCE_LABEL,
+  RATING_RELIABILITY_HINT,
+  RATING_RELIABILITY_LABEL,
+  RATING_REMOVED_MESSAGE,
+  RATING_SAVED_MESSAGE,
+  RATING_SCALE,
 } from '../admin.constants';
-import { AdminOrder, AdminOrderStatus, ManagedUser } from '../admin.models';
+import { AdminOrder, AdminOrderStatus, ManagedUser, WorkerRatingDraft } from '../admin.models';
 import { AdminStore } from '../admin.store';
 
 /** Админ-панель: создание заявок и контроль их назначения на пользователей. */
@@ -53,7 +63,16 @@ export class AdminOrders {
   protected readonly statusLabels = ADMIN_ORDER_STATUS_LABELS;
   protected readonly statusIcons = ADMIN_ORDER_STATUS_ICONS;
   protected readonly statuses = ADMIN_ORDER_STATUSES;
+  protected readonly allCities = CITIES;
+  protected readonly ratingScale = RATING_SCALE;
+  protected readonly reliabilityLabel = RATING_RELIABILITY_LABEL;
+  protected readonly reliabilityHint = RATING_RELIABILITY_HINT;
+  protected readonly performanceLabel = RATING_PERFORMANCE_LABEL;
+  protected readonly performanceHint = RATING_PERFORMANCE_HINT;
   protected readonly formOpen = signal(false);
+
+  /** Черновики оценок по выполненным заявкам, ключ — id заявки. */
+  private readonly ratingDrafts = signal<Record<string, WorkerRatingDraft>>({});
 
   // Фильтр заявок по статусу ('all' — все статусы).
   protected readonly statusFilter = signal<AdminOrderStatus | 'all'>('all');
@@ -70,6 +89,7 @@ export class AdminOrders {
       in_progress: 0,
       done: 0,
       paid: 0,
+      cancelled: 0,
     };
     for (const order of this.store.orders()) {
       acc[order.status]++;
@@ -88,6 +108,7 @@ export class AdminOrders {
   private readonly newOrder = signal({
     title: '',
     company: '',
+    city: '',
     address: '',
     payout: '',
     schedule: '',
@@ -96,6 +117,7 @@ export class AdminOrders {
   protected readonly form = form(this.newOrder, (path) => {
     required(path.title, { message: 'Укажите название' });
     required(path.company, { message: 'Укажите компанию' });
+    required(path.city, { message: 'Укажите город' });
   });
 
   /** Подпись выбранного статуса для пустого состояния. */
@@ -113,14 +135,17 @@ export class AdminOrders {
     return this.allUsers().find((u) => u.id === order.assignedUserId)?.fullName ?? '';
   }
 
-  /** Кандидаты на назначение с учётом поискового запроса (по ФИО и логину, дебаунс 300 мс). */
+  /**
+   * Кандидаты на назначение: только активные исполнители из города заявки,
+   * дополнительно отфильтрованные по поисковому запросу (ФИО/логин, дебаунс 300 мс).
+   */
   assignableFor(order: AdminOrder): ManagedUser[] {
     const q = this.debouncedQuery().trim().toLowerCase();
-    if (!q) {
-      return this.users();
-    }
     return this.users().filter(
-      (u) => u.fullName.toLowerCase().includes(q) || u.login.toLowerCase().includes(q),
+      (u) =>
+        // У заявок без города (старые данные) фильтр по городу не применяем.
+        (!order.city || u.city === order.city) &&
+        (!q || u.fullName.toLowerCase().includes(q) || u.login.toLowerCase().includes(q)),
     );
   }
 
@@ -136,6 +161,7 @@ export class AdminOrders {
     if (this.form().invalid()) {
       this.form.title().markAsTouched();
       this.form.company().markAsTouched();
+      this.form.city().markAsTouched();
       return;
     }
 
@@ -153,9 +179,25 @@ export class AdminOrders {
     });
   }
 
-  /** Статус доступен, если это текущий или соседний по порядку (±1 шаг). */
+  /**
+   * Доступность статуса при смене:
+   * — внутри линейного потока разрешён только соседний шаг (±1);
+   * — отменить можно активную работу (не назначена / назначена / выполняется);
+   * — из отменённой работу можно только вернуть в «не назначена».
+   */
   isStatusReachable(order: AdminOrder, status: AdminOrderStatus): boolean {
-    return Math.abs(this.statuses.indexOf(status) - this.statuses.indexOf(order.status)) <= 1;
+    if (status === order.status) {
+      return true;
+    }
+    if (order.status === 'cancelled') {
+      return status === 'open';
+    }
+    if (status === 'cancelled') {
+      return (
+        order.status === 'open' || order.status === 'assigned' || order.status === 'in_progress'
+      );
+    }
+    return Math.abs(ADMIN_ORDER_FLOW.indexOf(status) - ADMIN_ORDER_FLOW.indexOf(order.status)) <= 1;
   }
 
   onStatusChange(order: AdminOrder, status: AdminOrderStatus): void {
@@ -169,5 +211,59 @@ export class AdminOrders {
   removeOrder(orderId: string): void {
     this.store.removeOrder(orderId);
     this.snackBar.open(ORDER_REMOVED_MESSAGE, undefined, { duration: 2000 });
+  }
+
+  // --- Оценка выполненной работы --------------------------------------------
+
+  /** Уже выставленная за заявку оценка (если работу оценили). */
+  ratingForOrder(order: AdminOrder) {
+    return this.store.ratingForOrder(order.id);
+  }
+
+  /** Текущий черновик оценки для заявки (по умолчанию — максимум по обоим показателям). */
+  ratingDraft(orderId: string): WorkerRatingDraft {
+    return this.ratingDrafts()[orderId] ?? { ...EMPTY_RATING_DRAFT, orderId };
+  }
+
+  setReliability(orderId: string, value: number): void {
+    this.patchDraft(orderId, { reliability: value });
+  }
+
+  setPerformance(orderId: string, value: number): void {
+    this.patchDraft(orderId, { performance: value });
+  }
+
+  setRatingComment(orderId: string, event: Event): void {
+    this.patchDraft(orderId, { comment: (event.target as HTMLTextAreaElement).value });
+  }
+
+  /** Выставить работнику оценку за выполненную заявку. */
+  saveRating(order: AdminOrder): void {
+    if (!order.assignedUserId) {
+      return;
+    }
+    this.store.rateWorker(order.assignedUserId, this.ratingDraft(order.id));
+    this.clearDraft(order.id);
+    this.snackBar.open(RATING_SAVED_MESSAGE, undefined, { duration: 2000 });
+  }
+
+  /** Снять оценку, чтобы выставить её заново. */
+  removeRating(userId: string, ratingId: string): void {
+    this.store.removeRating(userId, ratingId);
+    this.snackBar.open(RATING_REMOVED_MESSAGE, undefined, { duration: 2000 });
+  }
+
+  private patchDraft(orderId: string, patch: Partial<WorkerRatingDraft>): void {
+    this.ratingDrafts.update((drafts) => ({
+      ...drafts,
+      [orderId]: { ...this.ratingDraft(orderId), ...patch },
+    }));
+  }
+
+  private clearDraft(orderId: string): void {
+    this.ratingDrafts.update((drafts) => {
+      const { [orderId]: _removed, ...rest } = drafts;
+      return rest;
+    });
   }
 }

@@ -48,6 +48,39 @@ export interface UserDocuments {
   photo?: UploadedFile;
 }
 
+/**
+ * Оценка работника за конкретный выход на работу по двум показателям (шкала 1–5).
+ * Надёжность — про явку на смену, исполнительность — про качество работы.
+ */
+export interface WorkerRating {
+  id: string;
+  /** id заявки, по которой выставлена оценка (если оценка привязана к заявке). */
+  orderId?: string;
+  /** Надёжность — выход на работу (1–5). */
+  reliability: number;
+  /** Исполнительность — оценка работы (1–5). */
+  performance: number;
+  /** Комментарий администратора. */
+  comment?: string;
+  /** Когда выставлена оценка (ISO-строка). */
+  ratedAt: string;
+}
+
+/** Черновик новой оценки работника (без id и даты — их проставляет стор). */
+export type WorkerRatingDraft = Omit<WorkerRating, 'id' | 'ratedAt'>;
+
+/** Сводный рейтинг работника по обоим показателям (нули, если оценок нет). */
+export interface WorkerRatingSummary {
+  /** Средняя надёжность. */
+  reliability: number;
+  /** Средняя исполнительность. */
+  performance: number;
+  /** Общий средний балл по обоим показателям. */
+  overall: number;
+  /** Количество выставленных оценок. */
+  count: number;
+}
+
 /** Пользователь, заведённый администратором или зарегистрированный сам. */
 export interface ManagedUser {
   id: string;
@@ -67,6 +100,8 @@ export interface ManagedUser {
   passport?: PassportData;
   /** Загруженные документы и фото. */
   documents?: UserDocuments;
+  /** История оценок работника по надёжности и исполнительности. */
+  ratings?: WorkerRating[];
 }
 
 /** Данные регистрации нового пользователя. */
@@ -81,13 +116,15 @@ export interface RegistrationDraft {
 }
 
 /** Статус заявки в админ-панели. */
-export type AdminOrderStatus = 'open' | 'assigned' | 'in_progress' | 'done' | 'paid';
+export type AdminOrderStatus = 'open' | 'assigned' | 'in_progress' | 'done' | 'paid' | 'cancelled';
 
 /** Заявка (заказ), заведённая администратором. */
 export interface AdminOrder {
   id: string;
   title: string;
   company: string;
+  /** Город заявки — назначать можно только исполнителей из этого города. */
+  city: string;
   address: string;
   payout: string;
   schedule: string;

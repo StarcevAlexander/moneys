@@ -1,17 +1,55 @@
 <section class="jobs">
   <header class="jobs__head">
     <h1 class="jobs__title">Поиск работы</h1>
-    <p class="jobs__subtitle">Иркутск · {{ jobs.length }} точек на карте</p>
+    <p class="jobs__subtitle">
+      {{ workerCity() ?? 'Иркутск' }} · {{ jobs().length }} точек на карте
+    </p>
   </header>
+
+  @if (workerCity()) {
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="jobs__city">
+      <mat-label>Город</mat-label>
+      <mat-icon matPrefix>location_on</mat-icon>
+      <mat-select [value]="workerCity()">
+        @for (city of allCities; track city) {
+          <mat-option [value]="city" [disabled]="city !== workerCity()">{{ city }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+  }
 
   <div class="jobs__map-wrap">
     @if (hasApiKey) {
       <div #map class="jobs__map"></div>
-      @if (mapLoading()) {
-        <div class="jobs__map-overlay">Загружаем карту…</div>
-      }
-      @if (mapError()) {
-        <div class="jobs__map-overlay">Не удалось загрузить карту</div>
+
+      @switch (mapState()) {
+        @case ('idle') {
+          <button type="button" class="jobs__map-preview" (click)="showMap()">
+            <img class="jobs__map-emblem" src="irkutsk.svg" alt="Герб Иркутской области" />
+            <span class="jobs__map-city">{{ workerCity() ?? 'Иркутск' }}</span>
+            <span class="jobs__map-count">{{ jobs().length }} точек на карте</span>
+            <span class="jobs__map-cta">
+              <mat-icon>map</mat-icon>
+              Посмотреть на карте
+            </span>
+          </button>
+        }
+        @case ('loading') {
+          <div class="jobs__map-overlay">
+            <mat-spinner diameter="40" strokeWidth="4" />
+            <span>Загружаем карту…</span>
+          </div>
+        }
+        @case ('error') {
+          <div class="jobs__map-overlay jobs__map-overlay--error">
+            <mat-icon>map</mat-icon>
+            <span>Не удалось загрузить карту</span>
+            <button type="button" class="jobs__map-retry" (click)="showMap()">
+              <mat-icon>refresh</mat-icon>
+              Повторить
+            </button>
+          </div>
+        }
       }
     } @else {
       <div class="jobs__map-placeholder">
@@ -24,11 +62,15 @@
 
   <p class="jobs__hint">
     <mat-icon inline>touch_app</mat-icon>
-    Нажмите точку на карте или вакансию в списке
+    @if (mapState() === 'ready') {
+      Нажмите точку на карте или вакансию в списке
+    } @else {
+      Откройте карту или выберите вакансию в списке
+    }
   </p>
 
   <ul class="jobs__list">
-    @for (job of jobs; track job.id) {
+    @for (job of jobs(); track job.id) {
       <li>
         <a class="jobs__item" [routerLink]="['/jobs', job.id]">
           <div class="jobs__item-main">
@@ -38,6 +80,11 @@
           <div class="jobs__item-payout">{{ job.payout }}</div>
           <mat-icon class="jobs__item-arrow">chevron_right</mat-icon>
         </a>
+      </li>
+    } @empty {
+      <li class="jobs__empty">
+        <mat-icon>work_off</mat-icon>
+        В городе «{{ workerCity() ?? 'Иркутск' }}» пока нет открытых вакансий.
       </li>
     }
   </ul>

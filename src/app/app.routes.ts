@@ -17,6 +17,11 @@ export const routes: Routes = [
     canActivate: [authGuard],
     loadComponent: () => import('./layout/main-shell/main-shell').then((m) => m.MainShell),
     children: [
+      // Настройки — доступны любому авторизованному пользователю (работник и админ).
+      {
+        path: 'settings',
+        loadComponent: () => import('./features/settings/settings').then((m) => m.Settings),
+      },
       // Рабочая часть — только для роли «работник».
       {
         path: '',

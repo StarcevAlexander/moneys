@@ -1,11 +1,12 @@
-<div class="settings__head">
-  <h2 mat-dialog-title>Настройки</h2>
-  <button mat-icon-button (click)="close()" aria-label="Закрыть">
-    <mat-icon>close</mat-icon>
-  </button>
-</div>
+<section class="settings">
+  <header class="settings__head">
+    <button type="button" class="settings__back" (click)="back()">
+      <mat-icon>arrow_back</mat-icon>
+      Назад
+    </button>
+    <h1 class="settings__page-title">Настройки</h1>
+  </header>
 
-<mat-dialog-content>
   <mat-tab-group animationDuration="200ms" mat-stretch-tabs="false">
     <!-- Профиль -->
     <mat-tab label="Профиль">
@@ -32,6 +33,111 @@
           </button>
         </div>
       }
+      @if (hasBank()) {
+        <section class="settings__city">
+          <h3 class="settings__group-title">Город</h3>
+          <mat-form-field
+            appearance="outline"
+            subscriptSizing="dynamic"
+            class="settings__city-field"
+          >
+            <mat-label>Населённый пункт</mat-label>
+            <mat-select [value]="bankUser()?.city" (selectionChange)="setCity($event.value)">
+              @for (city of allCities; track city) {
+                <mat-option [value]="city">{{ city }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+          <p class="settings__hint settings__city-hint">
+            Вам доступны заявки только из выбранного города.
+          </p>
+        </section>
+      }
+      @if (hasBank()) {
+        @let summary = ratingSummary();
+        <section class="settings__rating">
+          <div class="settings__rating-head">
+            <h3 class="settings__group-title">Мой рейтинг</h3>
+            @if (summary && summary.count) {
+              <span class="settings__rating-overall">
+                <mat-icon class="settings__rating-overall-star">star</mat-icon>
+                {{ summary.overall | number: '1.1-1' }}
+                <span class="settings__rating-count">· {{ summary.count }} оценок</span>
+              </span>
+            }
+          </div>
+
+          @if (summary && summary.count) {
+            <div class="rating-metric">
+              <span class="rating-metric__label">
+                {{ reliabilityLabel }}
+                <span class="rating-metric__hint">{{ reliabilityHint }}</span>
+              </span>
+              <span class="rating-metric__stars">
+                @for (star of ratingScale; track star) {
+                  <mat-icon
+                    class="rating-metric__star"
+                    [class.rating-metric__star--on]="star <= summary.reliability"
+                  >
+                    {{ star <= summary.reliability ? 'star' : 'star_border' }}
+                  </mat-icon>
+                }
+                <span class="rating-metric__value">{{
+                  summary.reliability | number: '1.1-1'
+                }}</span>
+              </span>
+            </div>
+            <div class="rating-metric">
+              <span class="rating-metric__label">
+                {{ performanceLabel }}
+                <span class="rating-metric__hint">{{ performanceHint }}</span>
+              </span>
+              <span class="rating-metric__stars">
+                @for (star of ratingScale; track star) {
+                  <mat-icon
+                    class="rating-metric__star"
+                    [class.rating-metric__star--on]="star <= summary.performance"
+                  >
+                    {{ star <= summary.performance ? 'star' : 'star_border' }}
+                  </mat-icon>
+                }
+                <span class="rating-metric__value">{{
+                  summary.performance | number: '1.1-1'
+                }}</span>
+              </span>
+            </div>
+
+            <h4 class="settings__rating-list-title">Оценки по работам</h4>
+            <ul class="rating-list">
+              @for (rating of ratings(); track rating.id) {
+                <li class="rating-list__item">
+                  @let title = orderTitle(rating.orderId);
+                  <span class="rating-list__order">{{ title || 'Без привязки к работе' }}</span>
+                  <span class="rating-list__scores">
+                    <span class="rating-list__score" [title]="reliabilityLabel">
+                      <mat-icon class="rating-list__score-icon">event_available</mat-icon>
+                      {{ rating.reliability }}/{{ ratingScale.length }}
+                    </span>
+                    <span class="rating-list__score" [title]="performanceLabel">
+                      <mat-icon class="rating-list__score-icon">workspace_premium</mat-icon>
+                      {{ rating.performance }}/{{ ratingScale.length }}
+                    </span>
+                  </span>
+                  @if (rating.comment) {
+                    <p class="rating-list__comment">{{ rating.comment }}</p>
+                  }
+                </li>
+              }
+            </ul>
+          } @else {
+            <p class="settings__hint settings__rating-empty">
+              Оценок пока нет. Выходите на смены вовремя и выполняйте работу качественно — рейтинг
+              появится после первых оценок.
+            </p>
+          }
+        </section>
+      }
+
       <form class="settings__form" (submit)="$event.preventDefault(); saveProfile()">
         <h3 class="settings__group-title">ФИО</h3>
         <mat-form-field appearance="outline">
@@ -196,4 +302,4 @@
       </form>
     </mat-tab>
   </mat-tab-group>
-</mat-dialog-content>
+</section>

@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { DecimalPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { form, required, FormField } from '@angular/forms/signals';
 import { MatButtonModule } from '@angular/material/button';
@@ -15,18 +16,26 @@ import {
   ADMIN_ORDER_STATUS_LABELS,
   BANK_DETAILS_SAVED_MESSAGE,
   CITIES,
+  CITY_SAVED_MESSAGE,
   EMPTY_BANK_DETAILS,
   LOGIN_TAKEN_MESSAGE,
+  RATING_PERFORMANCE_HINT,
+  RATING_PERFORMANCE_LABEL,
+  RATING_RELIABILITY_HINT,
+  RATING_RELIABILITY_LABEL,
+  RATING_REMOVED_MESSAGE,
+  RATING_SCALE,
   USER_CREATED_MESSAGE,
   USER_REMOVED_MESSAGE,
 } from '../admin.constants';
-import { AdminOrder, ManagedUser } from '../admin.models';
+import { AdminOrder, ManagedUser, WorkerRatingSummary } from '../admin.models';
 import { AdminStore } from '../admin.store';
 
 /** Админ-панель: пользователи, их заявки и банковские реквизиты. */
 @Component({
   selector: 'app-admin-users',
   imports: [
+    DecimalPipe,
     FormsModule,
     FormField,
     MatCardModule,
@@ -49,6 +58,11 @@ export class AdminUsers {
   protected readonly statusLabels = ADMIN_ORDER_STATUS_LABELS;
   protected readonly statusIcons = ADMIN_ORDER_STATUS_ICONS;
   protected readonly allCities = CITIES;
+  protected readonly ratingScale = RATING_SCALE;
+  protected readonly reliabilityLabel = RATING_RELIABILITY_LABEL;
+  protected readonly reliabilityHint = RATING_RELIABILITY_HINT;
+  protected readonly performanceLabel = RATING_PERFORMANCE_LABEL;
+  protected readonly performanceHint = RATING_PERFORMANCE_HINT;
   protected readonly formOpen = signal(false);
   /** id раскрытого пользователя (карточка с заявками и реквизитами). */
   protected readonly expandedId = signal<string | undefined>(undefined);
@@ -94,6 +108,19 @@ export class AdminUsers {
     return this.store.ordersForUser(userId);
   }
 
+  /** Сводный рейтинг работника по обоим показателям. */
+  summaryOf(userId: string): WorkerRatingSummary {
+    return this.store.ratingSummary(userId);
+  }
+
+  /** Название заявки по её id (для подписи оценки), пустая строка — если не найдена. */
+  orderTitle(orderId?: string): string {
+    if (!orderId) {
+      return '';
+    }
+    return this.store.orders().find((o) => o.id === orderId)?.title ?? '';
+  }
+
   toggleExpand(user: ManagedUser): void {
     if (this.expandedId() === user.id) {
       this.expandedId.set(undefined);
@@ -103,9 +130,20 @@ export class AdminUsers {
     this.bank.set({ ...EMPTY_BANK_DETAILS, ...user.bankDetails });
   }
 
+  removeRating(userId: string, ratingId: string): void {
+    this.store.removeRating(userId, ratingId);
+    this.snackBar.open(RATING_REMOVED_MESSAGE, undefined, { duration: 2000 });
+  }
+
   saveBank(userId: string): void {
     this.store.updateBankDetails(userId, this.bank());
     this.snackBar.open(BANK_DETAILS_SAVED_MESSAGE, undefined, { duration: 2000 });
+  }
+
+  /** Сменить город работника прямо из карточки. */
+  setCity(userId: string, city: string): void {
+    this.store.updateCity(userId, city);
+    this.snackBar.open(CITY_SAVED_MESSAGE, undefined, { duration: 2000 });
   }
 
   onNameFilter(event: Event): void {

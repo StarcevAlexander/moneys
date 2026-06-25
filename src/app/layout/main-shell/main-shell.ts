@@ -1,11 +1,9 @@
 import { Component, computed, inject, ChangeDetectionStrategy } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
-import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { AuthService } from '../../core/services';
 import { AdminStore } from '../../features/admin/admin.store';
-import { SettingsDialog } from '../../shared/components/settings-dialog/settings-dialog';
 import { ADMIN_NAV_TABS, WORKER_NAV_TABS } from './main-shell.constants';
 
 @Component({
@@ -18,7 +16,6 @@ import { ADMIN_NAV_TABS, WORKER_NAV_TABS } from './main-shell.constants';
 export class MainShell {
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
-  private readonly dialog = inject(MatDialog);
   private readonly adminStore = inject(AdminStore);
 
   protected readonly user = this.auth.currentUser;
@@ -31,7 +28,7 @@ export class MainShell {
   });
 
   openSettings(): void {
-    this.dialog.open(SettingsDialog, { autoFocus: false, maxWidth: '95vw' });
+    void this.router.navigate(['/settings']);
   }
 
   logout(): void {

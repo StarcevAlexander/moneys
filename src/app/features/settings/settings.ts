@@ -1,52 +1,62 @@
 import { Component, computed, inject, signal, ChangeDetectionStrategy } from '@angular/core';
+import { DecimalPipe, Location } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { form, maxLength, minLength, required, FormField } from '@angular/forms/signals';
 import { MatButtonModule } from '@angular/material/button';
-import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTabsModule } from '@angular/material/tabs';
-import { PROFILE_SAVED_MESSAGE, SUPPORT_SENT_BODY } from '../../../core/constants';
-import { AuthService, ProfileService, ThemeService } from '../../../core/services';
-import { ThemeId } from '../../../core/models';
+import { PROFILE_SAVED_MESSAGE, SUPPORT_SENT_BODY } from '../../core/constants';
+import { AuthService, ProfileService, ThemeService } from '../../core/services';
+import { ThemeId } from '../../core/models';
 import {
   AVATAR_IMAGE_MAX_SIZE,
   BANK_DETAILS_SAVED_MESSAGE,
+  CITIES,
+  CITY_SAVED_MESSAGE,
   EMPTY_BANK_DETAILS,
   PHOTO_SAVED_MESSAGE,
-} from '../../../features/admin/admin.constants';
-import { AdminStore } from '../../../features/admin/admin.store';
-import { compressImage } from '../../../core/utils/image-upload';
+  RATING_PERFORMANCE_HINT,
+  RATING_PERFORMANCE_LABEL,
+  RATING_RELIABILITY_HINT,
+  RATING_RELIABILITY_LABEL,
+  RATING_SCALE,
+} from '../admin/admin.constants';
+import { AdminStore } from '../admin/admin.store';
+import { compressImage } from '../../core/utils/image-upload';
 
-/** Диалог настроек: профиль, реквизиты, тема оформления и обращение в техподдержку. */
+/** Страница настроек: профиль, реквизиты, тема оформления и обращение в техподдержку. */
 @Component({
-  selector: 'app-settings-dialog',
+  selector: 'app-settings',
   imports: [
     FormsModule,
     FormField,
-    MatDialogModule,
     MatTabsModule,
     MatFormFieldModule,
     MatInputModule,
+    MatSelectModule,
     MatButtonModule,
     MatIconModule,
+    DecimalPipe,
   ],
-  templateUrl: './settings-dialog.html',
+  templateUrl: './settings.html',
   changeDetection: ChangeDetectionStrategy.Eager,
-  styleUrl: './settings-dialog.scss',
+  styleUrl: './settings.scss',
 })
-export class SettingsDialog {
+export class Settings {
   private readonly profileService = inject(ProfileService);
   private readonly themeService = inject(ThemeService);
   private readonly auth = inject(AuthService);
   private readonly adminStore = inject(AdminStore);
   private readonly snackBar = inject(MatSnackBar);
-  private readonly dialogRef = inject<MatDialogRef<SettingsDialog>>(MatDialogRef);
+  private readonly location = inject(Location);
 
   protected readonly themes = this.themeService.options;
   protected readonly currentTheme = this.themeService.current;
+  protected readonly allCities = CITIES;
 
   /** Запись пользователя для текущего логина — источник его реквизитов. */
   protected readonly bankUser = computed(() => {
@@ -56,6 +66,28 @@ export class SettingsDialog {
   protected readonly hasBank = computed(() => !!this.bankUser());
   /** Текущий аватар пользователя (data URL) или undefined — тогда показываем иконку. */
   protected readonly avatar = computed(() => this.bankUser()?.documents?.photo?.dataUrl);
+
+  // Рейтинг работника (только для просмотра — себя боец не оценивает).
+  protected readonly ratingScale = RATING_SCALE;
+  protected readonly reliabilityLabel = RATING_RELIABILITY_LABEL;
+  protected readonly reliabilityHint = RATING_RELIABILITY_HINT;
+  protected readonly performanceLabel = RATING_PERFORMANCE_LABEL;
+  protected readonly performanceHint = RATING_PERFORMANCE_HINT;
+  /** Сводный рейтинг текущего работника по обоим показателям. */
+  protected readonly ratingSummary = computed(() => {
+    const user = this.bankUser();
+    return user ? this.adminStore.ratingSummary(user.id) : undefined;
+  });
+  /** История оценок работника — чтобы видеть, за какую работу какой балл. */
+  protected readonly ratings = computed(() => this.bankUser()?.ratings ?? []);
+
+  /** Название работы, за которую выставлена оценка (пустая строка — без привязки). */
+  orderTitle(orderId?: string): string {
+    if (!orderId) {
+      return '';
+    }
+    return this.adminStore.orders().find((o) => o.id === orderId)?.title ?? '';
+  }
 
   private readonly profile = signal(this.profileService.profile());
   protected readonly profileForm = form(this.profile, (path) => {
@@ -107,6 +139,16 @@ export class SettingsDialog {
     this.snackBar.open(BANK_DETAILS_SAVED_MESSAGE, undefined, { duration: 2000 });
   }
 
+  /** Сменить свой город. */
+  setCity(city: string): void {
+    const user = this.bankUser();
+    if (!user) {
+      return;
+    }
+    this.adminStore.updateCity(user.id, city);
+    this.snackBar.open(CITY_SAVED_MESSAGE, undefined, { duration: 2000 });
+  }
+
   sendSupport(): void {
     if (this.supportForm().invalid()) {
       this.supportForm.message().markAsTouched();
@@ -118,7 +160,7 @@ export class SettingsDialog {
     this.snackBar.open(SUPPORT_SENT_BODY, undefined, { duration: 3000 });
   }
 
-  close(): void {
-    this.dialogRef.close();
+  back(): void {
+    this.location.back();
   }
 }

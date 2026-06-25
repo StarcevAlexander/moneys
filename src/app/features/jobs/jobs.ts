@@ -1,6 +1,6 @@
 import {
-  afterNextRender,
   Component,
+  computed,
   ElementRef,
   inject,
   signal,
@@ -8,15 +8,29 @@ import {
   ChangeDetectionStrategy,
 } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
+import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
-import { IRKUTSK_CENTER, MAP_DEFAULT_ZOOM } from '../../core/constants';
-import { YandexMapsService, YMaps3 } from '../../core/services';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSelectModule } from '@angular/material/select';
+import { CITY_CENTERS, IRKUTSK_CENTER, MAP_DEFAULT_ZOOM } from '../../core/constants';
+import { AuthService, YandexMapsService, YMaps3 } from '../../core/services';
+import { AdminStore } from '../admin/admin.store';
+import { CITIES } from '../admin/admin.constants';
 import { JOB_POINTS } from './jobs.data';
 import { JobPoint } from './jobs.models';
 
+/** Состояние карты: превью → загрузка → готова / ошибка. */
+type MapState = 'idle' | 'loading' | 'ready' | 'error';
+
 @Component({
   selector: 'app-jobs',
-  imports: [RouterLink, MatIconModule],
+  imports: [
+    RouterLink,
+    MatIconModule,
+    MatProgressSpinnerModule,
+    MatFormFieldModule,
+    MatSelectModule,
+  ],
   templateUrl: './jobs.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './jobs.scss',
@@ -24,12 +38,24 @@ import { JobPoint } from './jobs.models';
 export class Jobs {
   private readonly maps = inject(YandexMapsService);
   private readonly router = inject(Router);
+  private readonly auth = inject(AuthService);
+  private readonly adminStore = inject(AdminStore);
   private readonly mapHost = viewChild<ElementRef<HTMLDivElement>>('map');
 
-  protected readonly jobs = JOB_POINTS;
   protected readonly hasApiKey = this.maps.hasApiKey;
-  protected readonly mapLoading = signal(this.maps.hasApiKey);
-  protected readonly mapError = signal(false);
+  protected readonly allCities = CITIES;
+  /** Город текущего работника — только он доступен в выборе над картой. */
+  protected readonly workerCity = computed(() => {
+    const login = this.auth.currentUser()?.login;
+    return login ? this.adminStore.userByLogin(login)?.city : undefined;
+  });
+  /** Вакансии города работника — только их показываем на карте и в списке. */
+  protected readonly jobs = computed(() => {
+    const city = this.workerCity();
+    return city ? JOB_POINTS.filter((j) => j.city === city) : JOB_POINTS;
+  });
+  /** Карту грузим лениво — только после клика по превью города. */
+  protected readonly mapState = signal<MapState>('idle');
 
   // Динамические объекты Яндекс.Карт v3 — публичных типов у API нет.
   private ymaps3?: YMaps3;
@@ -40,21 +66,23 @@ export class Jobs {
   };
   private popupMarker?: unknown;
 
-  constructor() {
-    afterNextRender(() => {
-      if (this.maps.hasApiKey) {
-        void this.initMap();
-      }
-    });
-  }
-
   openDetail(job: JobPoint): void {
     void this.router.navigate(['/jobs', job.id]);
+  }
+
+  /** Запустить загрузку карты по клику на превью города (или повтор после ошибки). */
+  showMap(): void {
+    if (this.mapState() === 'loading' || this.mapState() === 'ready') {
+      return;
+    }
+    this.mapState.set('loading');
+    void this.initMap();
   }
 
   private async initMap(): Promise<void> {
     const host = this.mapHost()?.nativeElement;
     if (!host) {
+      this.mapState.set('error');
       return;
     }
 
@@ -63,21 +91,21 @@ export class Jobs {
       this.ymaps3 = ymaps3;
       const { YMap, YMapDefaultSchemeLayer, YMapDefaultFeaturesLayer, YMapMarker } = ymaps3;
 
+      const center = CITY_CENTERS[this.workerCity() ?? ''] ?? IRKUTSK_CENTER;
       const map = new YMap(host, {
-        location: { center: IRKUTSK_CENTER, zoom: MAP_DEFAULT_ZOOM },
+        location: { center, zoom: MAP_DEFAULT_ZOOM },
       });
       map.addChild(new YMapDefaultSchemeLayer());
       map.addChild(new YMapDefaultFeaturesLayer());
 
-      for (const job of this.jobs) {
+      for (const job of this.jobs()) {
         map.addChild(new YMapMarker({ coordinates: job.coordinates }, this.createPin(job)));
       }
 
       this.map = map;
-      this.mapLoading.set(false);
+      this.mapState.set('ready');
     } catch {
-      this.mapError.set(true);
-      this.mapLoading.set(false);
+      this.mapState.set('error');
     }
   }
 

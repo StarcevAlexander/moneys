@@ -141,6 +141,27 @@
   font-size: 0.82rem;
 }
 
+.user-card__rating {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.15rem;
+  margin-top: 0.25rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #ffd24d;
+}
+
+.user-card__rating-star {
+  font-size: 1rem;
+  width: 1rem;
+  height: 1rem;
+}
+
+.user-card__rating-count {
+  color: var(--shell-muted);
+  font-weight: 400;
+}
+
 .user-card__chevron {
   flex: none;
   color: var(--shell-muted);
@@ -157,6 +178,16 @@
   gap: 1rem;
   padding: 0.25rem 0.9rem 1rem;
   border-top: 1px solid var(--shell-border);
+}
+
+.user-city {
+  display: flex;
+  flex-direction: column;
+}
+
+.user-city__field {
+  width: 100%;
+  max-width: 240px;
 }
 
 .user-card__section-title {
@@ -207,6 +238,10 @@
   color: #ffd24d;
 }
 
+.user-orders__icon--cancelled {
+  color: #ff6b6b;
+}
+
 .user-orders__title {
   flex: 1 1 auto;
   min-width: 0;
@@ -237,9 +272,135 @@
   color: #ffd24d;
 }
 
+.user-orders__status--cancelled {
+  color: #ff6b6b;
+}
+
 .user-orders__empty {
   margin: 0;
   color: var(--shell-muted);
+  font-size: 0.85rem;
+}
+
+// --- Рейтинг работника ------------------------------------------------------
+
+.user-rating {
+  display: flex;
+  flex-direction: column;
+}
+
+.user-rating__summary {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.rating-metric {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.rating-metric__label {
+  display: flex;
+  flex-direction: column;
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+
+.rating-metric__hint {
+  font-size: 0.72rem;
+  font-weight: 400;
+  color: var(--shell-muted);
+}
+
+.rating-metric__stars {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.05rem;
+}
+
+.rating-metric__star {
+  font-size: 1.1rem;
+  width: 1.1rem;
+  height: 1.1rem;
+  color: var(--shell-muted);
+}
+
+.rating-metric__star--on {
+  color: #ffd24d;
+}
+
+.rating-metric__value {
+  margin-left: 0.35rem;
+  min-width: 1.8rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-align: right;
+}
+
+.rating-list {
+  list-style: none;
+  margin: 0.6rem 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.rating-list__item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding: 0.5rem 0.7rem;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.rating-list__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.rating-list__scores {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.9rem;
+}
+
+.rating-list__score {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.rating-list__score-icon {
+  font-size: 1rem;
+  width: 1rem;
+  height: 1rem;
+  color: var(--shell-muted);
+}
+
+.rating-list__remove {
+  flex: none;
+  color: var(--shell-muted);
+}
+
+.rating-list__order {
+  font-size: 0.8rem;
+  color: var(--shell-muted);
+}
+
+.rating-list__comment {
+  margin: 0.1rem 0 0;
   font-size: 0.85rem;
 }
 

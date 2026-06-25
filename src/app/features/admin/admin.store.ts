@@ -10,6 +10,9 @@ import {
   NewUserDraft,
   RegistrationDraft,
   UploadedFile,
+  WorkerRating,
+  WorkerRatingDraft,
+  WorkerRatingSummary,
 } from './admin.models';
 
 /** Реактивное состояние админ-панели: пользователи и заявки с персистом в localStorage. */
@@ -127,11 +130,70 @@ export class AdminStore {
     this._users.update((list) => list.map((u) => (u.id === userId ? { ...u, bankDetails } : u)));
   }
 
+  /** Смена города пользователя (правит и админ в карточке, и сам работник в профиле). */
+  updateCity(userId: string, city: string): void {
+    this._users.update((list) => list.map((u) => (u.id === userId ? { ...u, city } : u)));
+  }
+
   /** Обновление фото (аватара) пользователя. */
   updatePhoto(userId: string, photo: UploadedFile): void {
     this._users.update((list) =>
       list.map((u) => (u.id === userId ? { ...u, documents: { ...u.documents, photo } } : u)),
     );
+  }
+
+  // --- Рейтинг работника -----------------------------------------------------
+
+  /** Выставить работнику оценку по надёжности и исполнительности. */
+  rateWorker(userId: string, draft: WorkerRatingDraft): void {
+    const rating: WorkerRating = {
+      id: crypto.randomUUID(),
+      orderId: draft.orderId || undefined,
+      reliability: draft.reliability,
+      performance: draft.performance,
+      comment: draft.comment?.trim() || undefined,
+      ratedAt: new Date().toISOString(),
+    };
+    this._users.update((list) =>
+      list.map((u) => (u.id === userId ? { ...u, ratings: [rating, ...(u.ratings ?? [])] } : u)),
+    );
+  }
+
+  /** Оценка, выставленная за конкретную заявку (если работу уже оценили). */
+  ratingForOrder(orderId: string): WorkerRating | undefined {
+    for (const user of this._users()) {
+      const found = (user.ratings ?? []).find((r) => r.orderId === orderId);
+      if (found) {
+        return found;
+      }
+    }
+    return undefined;
+  }
+
+  /** Удалить ранее выставленную оценку работника. */
+  removeRating(userId: string, ratingId: string): void {
+    this._users.update((list) =>
+      list.map((u) =>
+        u.id === userId ? { ...u, ratings: (u.ratings ?? []).filter((r) => r.id !== ratingId) } : u,
+      ),
+    );
+  }
+
+  /** Сводный рейтинг работника: средние по обоим показателям и общий балл. */
+  ratingSummary(userId: string): WorkerRatingSummary {
+    const ratings = this._users().find((u) => u.id === userId)?.ratings ?? [];
+    const count = ratings.length;
+    if (!count) {
+      return { reliability: 0, performance: 0, overall: 0, count: 0 };
+    }
+    const reliability = ratings.reduce((sum, r) => sum + r.reliability, 0) / count;
+    const performance = ratings.reduce((sum, r) => sum + r.performance, 0) / count;
+    return {
+      reliability,
+      performance,
+      overall: (reliability + performance) / 2,
+      count,
+    };
   }
 
   addUser(draft: NewUserDraft): void {
