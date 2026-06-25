@@ -19,14 +19,25 @@ import {
   CITY_SAVED_MESSAGE,
   EMPTY_BANK_DETAILS,
   PHOTO_SAVED_MESSAGE,
+  QUALIFICATION_ADDED_MESSAGE,
+  QUALIFICATION_DOC_PRESETS,
+  QUALIFICATION_FILE_REQUIRED_MESSAGE,
+  QUALIFICATION_OTHER,
+  QUALIFICATION_REMOVED_MESSAGE,
+  QUALIFICATION_STATUS_ICONS,
+  QUALIFICATION_STATUS_LABELS,
+  QUALIFICATION_TITLE_REQUIRED_MESSAGE,
   RATING_PERFORMANCE_HINT,
   RATING_PERFORMANCE_LABEL,
   RATING_RELIABILITY_HINT,
   RATING_RELIABILITY_LABEL,
   RATING_SCALE,
+  UPLOAD_IMAGE_MAX_SIZE,
 } from '../admin/admin.constants';
 import { AdminStore } from '../admin/admin.store';
-import { compressImage } from '../../core/utils/image-upload';
+import { QualificationDocument, UploadedFile } from '../admin/admin.models';
+import { compressImage, fileToStoredDataUrl } from '../../core/utils/image-upload';
+import { ExpiryState, expiryLabel, expiryState } from '../../core/utils/expiry';
 
 /** Страница настроек: профиль, реквизиты, тема оформления и обращение в техподдержку. */
 @Component({
@@ -81,6 +92,18 @@ export class Settings {
   /** История оценок работника — чтобы видеть, за какую работу какой балл. */
   protected readonly ratings = computed(() => this.bankUser()?.ratings ?? []);
 
+  // Документы доп. образования / допусков (медкнижка, права на погрузчик и т.п.).
+  protected readonly qualPresets = QUALIFICATION_DOC_PRESETS;
+  protected readonly qualOther = QUALIFICATION_OTHER;
+  protected readonly qualStatusLabels = QUALIFICATION_STATUS_LABELS;
+  protected readonly qualStatusIcons = QUALIFICATION_STATUS_ICONS;
+  /** Загруженные работником документы. */
+  protected readonly qualifications = computed(() => this.bankUser()?.qualifications ?? []);
+  /** Черновик нового документа: выбранный тип, своё название и приложенный файл. */
+  protected readonly qualType = signal('');
+  protected readonly qualCustomTitle = signal('');
+  protected readonly qualFile = signal<UploadedFile | undefined>(undefined);
+
   /** Название работы, за которую выставлена оценка (пустая строка — без привязки). */
   orderTitle(orderId?: string): string {
     if (!orderId) {
@@ -128,6 +151,68 @@ export class Settings {
       this.snackBar.open('Не удалось загрузить фото', undefined, { duration: 2500 });
     }
     input.value = '';
+  }
+
+  /** Состояние срока действия документа (для подсветки). */
+  expiry(doc: QualificationDocument): ExpiryState {
+    return expiryState(doc.validTo);
+  }
+
+  /** Подпись о скором/прошедшем сроке (пустая строка — подсвечивать нечего). */
+  expiryLabel(doc: QualificationDocument): string {
+    return expiryLabel(doc.validTo);
+  }
+
+  onQualCustomTitle(event: Event): void {
+    this.qualCustomTitle.set((event.target as HTMLInputElement).value);
+  }
+
+  async onQualFile(event: Event): Promise<void> {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) {
+      return;
+    }
+    try {
+      const dataUrl = await fileToStoredDataUrl(file, UPLOAD_IMAGE_MAX_SIZE);
+      this.qualFile.set({ name: file.name, dataUrl });
+    } catch {
+      this.snackBar.open('Не удалось загрузить файл', undefined, { duration: 2500 });
+    }
+    input.value = '';
+  }
+
+  addQualification(): void {
+    const user = this.bankUser();
+    if (!user) {
+      return;
+    }
+    const title = (
+      this.qualType() === QUALIFICATION_OTHER ? this.qualCustomTitle() : this.qualType()
+    ).trim();
+    const file = this.qualFile();
+    if (!title) {
+      this.snackBar.open(QUALIFICATION_TITLE_REQUIRED_MESSAGE, undefined, { duration: 2500 });
+      return;
+    }
+    if (!file) {
+      this.snackBar.open(QUALIFICATION_FILE_REQUIRED_MESSAGE, undefined, { duration: 2500 });
+      return;
+    }
+    this.adminStore.addQualification(user.id, { title, file });
+    this.qualType.set('');
+    this.qualCustomTitle.set('');
+    this.qualFile.set(undefined);
+    this.snackBar.open(QUALIFICATION_ADDED_MESSAGE, undefined, { duration: 2500 });
+  }
+
+  removeQualification(docId: string): void {
+    const user = this.bankUser();
+    if (!user) {
+      return;
+    }
+    this.adminStore.removeQualification(user.id, docId);
+    this.snackBar.open(QUALIFICATION_REMOVED_MESSAGE, undefined, { duration: 2000 });
   }
 
   saveBank(): void {

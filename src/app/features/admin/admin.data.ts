@@ -8,6 +8,41 @@ export const DEFAULT_USERS: ManagedUser[] = [
     fullName: 'Иванов Иван Иванович',
     city: 'Иркутск',
     active: true,
+    qualifications: [
+      {
+        id: 'qual-worker-medbook',
+        title: 'Медицинская книжка',
+        file: { name: 'medbook.jpg', dataUrl: '' },
+        status: 'pending',
+        uploadedAt: '2026-06-22T09:00:00.000Z',
+      },
+      {
+        id: 'qual-worker-loader',
+        title: 'Права на погрузчик',
+        file: { name: 'loader.jpg', dataUrl: '' },
+        status: 'approved',
+        series: 'АА',
+        number: '123456',
+        issuedBy: 'Гостехнадзор по Иркутской области',
+        validFrom: '01.03.2024',
+        validTo: '01.03.2034',
+        uploadedAt: '2026-06-15T09:00:00.000Z',
+        reviewedAt: '2026-06-16T10:00:00.000Z',
+      },
+      {
+        id: 'qual-worker-slinger',
+        title: 'Удостоверение стропальщика',
+        file: { name: 'slinger.jpg', dataUrl: '' },
+        status: 'approved',
+        series: 'СТ',
+        number: '004521',
+        issuedBy: 'УЦ «Профессионал»',
+        validFrom: '03.07.2023',
+        validTo: '03.07.2026',
+        uploadedAt: '2026-06-10T09:00:00.000Z',
+        reviewedAt: '2026-06-11T10:00:00.000Z',
+      },
+    ],
     ratings: [
       {
         id: 'rating-worker-1',
@@ -30,6 +65,15 @@ export const DEFAULT_USERS: ManagedUser[] = [
     fullName: 'Петров Пётр Петрович',
     city: 'Ангарск',
     active: true,
+    qualifications: [
+      {
+        id: 'qual-petrov-medbook',
+        title: 'Медицинская книжка',
+        file: { name: 'medbook.jpg', dataUrl: '' },
+        status: 'pending',
+        uploadedAt: '2026-06-21T11:00:00.000Z',
+      },
+    ],
     ratings: [
       {
         id: 'rating-petrov-1',

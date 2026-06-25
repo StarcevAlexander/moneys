@@ -404,6 +404,222 @@
   font-size: 0.85rem;
 }
 
+// --- Документы доп. образования --------------------------------------------
+
+.user-quals {
+  display: flex;
+  flex-direction: column;
+}
+
+.user-quals__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.qual-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.7rem;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border-left: 3px solid var(--shell-border);
+}
+
+.qual-card--pending {
+  border-left-color: #ffa94d;
+}
+
+.qual-card--approved {
+  border-left-color: #3ddc84;
+}
+
+.qual-card--rejected {
+  border-left-color: #ff6b6b;
+}
+
+.qual-card__top {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.qual-card__thumb {
+  flex: none;
+  width: 48px;
+  height: 48px;
+  border-radius: 10px;
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+  background: rgba(255, 255, 255, 0.06);
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  mat-icon {
+    color: var(--shell-muted);
+  }
+}
+
+.qual-card__info {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.qual-card__title {
+  font-weight: 600;
+}
+
+.qual-card__status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.qual-card__status-icon {
+  font-size: 1rem;
+  width: 1rem;
+  height: 1rem;
+}
+
+.qual-card__status--pending {
+  color: #ffa94d;
+}
+
+.qual-card__status--approved {
+  color: #3ddc84;
+}
+
+.qual-card__status--rejected {
+  color: #ff6b6b;
+}
+
+.qual-card__details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin: 0;
+
+  > div {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.75rem;
+  }
+
+  dt {
+    font-size: 0.78rem;
+    color: var(--shell-muted);
+  }
+
+  dd {
+    margin: 0;
+    font-size: 0.82rem;
+    font-weight: 600;
+    text-align: right;
+  }
+}
+
+.qual-card__comment {
+  margin: 0;
+  font-size: 0.82rem;
+  color: #ff8787;
+}
+
+.qual-expiry__range {
+  display: inline-block;
+}
+
+.qual-expiry__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  margin-top: 0.15rem;
+  padding: 0.05rem 0.4rem;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+
+.qual-expiry__icon {
+  font-size: 0.9rem;
+  width: 0.9rem;
+  height: 0.9rem;
+}
+
+.qual-expiry--expiring {
+  dd {
+    color: #ffa94d;
+  }
+
+  .qual-expiry__badge {
+    color: #ffa94d;
+    background: color-mix(in srgb, #ffa94d 18%, transparent);
+  }
+}
+
+.qual-expiry--expired {
+  dd {
+    color: #ff6b6b;
+  }
+
+  .qual-expiry__badge {
+    color: #ff6b6b;
+    background: color-mix(in srgb, #ff6b6b 18%, transparent);
+  }
+}
+
+.qual-card__actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.qual-card__remove {
+  flex: none;
+  color: var(--shell-muted);
+}
+
+.qual-review {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--shell-border);
+}
+
+.qual-review__row {
+  display: flex;
+  gap: 0.75rem;
+
+  mat-form-field {
+    flex: 1 1 0;
+  }
+}
+
+.qual-review__actions {
+  display: flex;
+  gap: 0.6rem;
+  margin-top: 0.25rem;
+}
+
+.qual-review__reject {
+  color: #ff6b6b;
+}
+
 .user-bank {
   display: flex;
   flex-direction: column;

@@ -48,6 +48,57 @@ export interface UserDocuments {
   photo?: UploadedFile;
 }
 
+/** Статус проверки квалификационного документа менеджером. */
+export type QualificationStatus = 'pending' | 'approved' | 'rejected';
+
+/**
+ * Документ дополнительного образования или допуска работника
+ * (медкнижка, права на погрузчик, удостоверение стропальщика и т.п.).
+ * Работник загружает фото, менеджер проверяет и вносит реквизиты.
+ */
+export interface QualificationDocument {
+  id: string;
+  /** Тип/название документа (медкнижка, права на погрузчик…). */
+  title: string;
+  /** Скан или фото документа (хранится локально как data URL). */
+  file: UploadedFile;
+  /** Статус проверки менеджером. */
+  status: QualificationStatus;
+  /** Серия документа (вносит менеджер при подтверждении). */
+  series?: string;
+  /** Номер документа. */
+  number?: string;
+  /** Кем выдан. */
+  issuedBy?: string;
+  /** Действителен с (дд.мм.гггг). */
+  validFrom?: string;
+  /** Действителен до (дд.мм.гггг). */
+  validTo?: string;
+  /** Комментарий менеджера (например, причина отклонения). */
+  reviewComment?: string;
+  /** Когда работник загрузил документ (ISO-строка). */
+  uploadedAt: string;
+  /** Когда менеджер проверил документ (ISO-строка). */
+  reviewedAt?: string;
+}
+
+/** Черновик загрузки документа работником (тип + файл). */
+export interface QualificationUpload {
+  title: string;
+  file: UploadedFile;
+}
+
+/** Данные проверки документа менеджером: реквизиты, срок и вердикт. */
+export interface QualificationReviewDraft {
+  status: 'approved' | 'rejected';
+  series?: string;
+  number?: string;
+  issuedBy?: string;
+  validFrom?: string;
+  validTo?: string;
+  reviewComment?: string;
+}
+
 /**
  * Оценка работника за конкретный выход на работу по двум показателям (шкала 1–5).
  * Надёжность — про явку на смену, исполнительность — про качество работы.
@@ -100,6 +151,8 @@ export interface ManagedUser {
   passport?: PassportData;
   /** Загруженные документы и фото. */
   documents?: UserDocuments;
+  /** Документы доп. образования / допусков (медкнижка, права на погрузчик и т.п.). */
+  qualifications?: QualificationDocument[];
   /** История оценок работника по надёжности и исполнительности. */
   ratings?: WorkerRating[];
 }

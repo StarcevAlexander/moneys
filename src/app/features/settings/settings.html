@@ -255,6 +255,144 @@
       </mat-tab>
     }
 
+    <!-- Документы доп. образования / допусков -->
+    @if (hasBank()) {
+      <mat-tab label="Документы">
+        <section class="settings__docs">
+          <p class="settings__hint">
+            Загрузите фото документов о доп. образовании и допусках (медкнижка, права на погрузчик и
+            т.п.). Менеджер проверит их и внесёт данные.
+          </p>
+
+          @for (doc of qualifications(); track doc.id) {
+            <article class="qual-card qual-card--{{ doc.status }}">
+              <div class="qual-card__top">
+                @if (doc.file.dataUrl.startsWith('data:image')) {
+                  <a
+                    class="qual-card__thumb"
+                    [href]="doc.file.dataUrl"
+                    target="_blank"
+                    rel="noopener"
+                  >
+                    <img [src]="doc.file.dataUrl" [alt]="doc.title" />
+                  </a>
+                } @else {
+                  <span class="qual-card__thumb qual-card__thumb--file">
+                    <mat-icon>description</mat-icon>
+                  </span>
+                }
+                <div class="qual-card__info">
+                  <span class="qual-card__title">{{ doc.title }}</span>
+                  <span class="qual-card__status qual-card__status--{{ doc.status }}">
+                    <mat-icon class="qual-card__status-icon">{{
+                      qualStatusIcons[doc.status]
+                    }}</mat-icon>
+                    {{ qualStatusLabels[doc.status] }}
+                  </span>
+                </div>
+                @if (doc.status !== 'approved') {
+                  <button
+                    mat-icon-button
+                    type="button"
+                    class="qual-card__remove"
+                    aria-label="Удалить документ"
+                    (click)="removeQualification(doc.id)"
+                  >
+                    <mat-icon>delete_outline</mat-icon>
+                  </button>
+                }
+              </div>
+
+              @if (doc.status === 'approved') {
+                <dl class="qual-card__details">
+                  @if (doc.series || doc.number) {
+                    <div>
+                      <dt>Серия / номер</dt>
+                      <dd>{{ doc.series }} {{ doc.number }}</dd>
+                    </div>
+                  }
+                  @if (doc.issuedBy) {
+                    <div>
+                      <dt>Кем выдан</dt>
+                      <dd>{{ doc.issuedBy }}</dd>
+                    </div>
+                  }
+                  @if (doc.validFrom || doc.validTo) {
+                    <div class="qual-expiry qual-expiry--{{ expiry(doc) }}">
+                      <dt>Срок действия</dt>
+                      <dd>
+                        <span class="qual-expiry__range"
+                          >{{ doc.validFrom || '—' }} — {{ doc.validTo || '—' }}</span
+                        >
+                        @let label = expiryLabel(doc);
+                        @if (label) {
+                          <span class="qual-expiry__badge">
+                            <mat-icon class="qual-expiry__icon">schedule</mat-icon>
+                            {{ label }}
+                          </span>
+                        }
+                      </dd>
+                    </div>
+                  }
+                </dl>
+              }
+              @if (doc.status === 'rejected' && doc.reviewComment) {
+                <p class="qual-card__comment">{{ doc.reviewComment }}</p>
+              }
+            </article>
+          } @empty {
+            <p class="settings__hint settings__rating-empty">Документов пока нет.</p>
+          }
+
+          <div class="settings__doc-add">
+            <h3 class="settings__group-title">Добавить документ</h3>
+            <mat-form-field appearance="outline">
+              <mat-label>Тип документа</mat-label>
+              <mat-select [value]="qualType()" (selectionChange)="qualType.set($event.value)">
+                @for (preset of qualPresets; track preset) {
+                  <mat-option [value]="preset">{{ preset }}</mat-option>
+                }
+                <mat-option [value]="qualOther">{{ qualOther }}</mat-option>
+              </mat-select>
+            </mat-form-field>
+            @if (qualType() === qualOther) {
+              <mat-form-field appearance="outline">
+                <mat-label>Название документа</mat-label>
+                <input matInput [value]="qualCustomTitle()" (input)="onQualCustomTitle($event)" />
+              </mat-form-field>
+            }
+
+            <input
+              type="file"
+              hidden
+              #qualInput
+              accept="image/*,application/pdf"
+              (change)="onQualFile($event)"
+            />
+            <button
+              mat-stroked-button
+              type="button"
+              class="settings__doc-file"
+              (click)="qualInput.click()"
+            >
+              <mat-icon>upload_file</mat-icon>
+              {{ qualFile() ? qualFile()!.name : 'Приложить фото' }}
+            </button>
+
+            <button
+              mat-flat-button
+              type="button"
+              class="settings__submit"
+              (click)="addQualification()"
+            >
+              <mat-icon>send</mat-icon>
+              Отправить на проверку
+            </button>
+          </div>
+        </section>
+      </mat-tab>
+    }
+
     <!-- Тема -->
     <mat-tab label="Тема">
       <div class="settings__themes">

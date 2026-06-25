@@ -261,6 +261,170 @@
               }
             </section>
 
+            @let quals = qualificationsOf(user);
+            <section class="user-quals">
+              <h3 class="user-card__section-title">Документы · доп. образование</h3>
+              @if (quals.length) {
+                <ul class="user-quals__list">
+                  @for (doc of quals; track doc.id) {
+                    <li class="qual-card qual-card--{{ doc.status }}">
+                      <div class="qual-card__top">
+                        @if (doc.file.dataUrl.startsWith('data:image')) {
+                          <a
+                            class="qual-card__thumb"
+                            [href]="doc.file.dataUrl"
+                            target="_blank"
+                            rel="noopener"
+                          >
+                            <img [src]="doc.file.dataUrl" [alt]="doc.title" />
+                          </a>
+                        } @else {
+                          <span class="qual-card__thumb qual-card__thumb--file">
+                            <mat-icon>description</mat-icon>
+                          </span>
+                        }
+                        <div class="qual-card__info">
+                          <span class="qual-card__title">{{ doc.title }}</span>
+                          <span class="qual-card__status qual-card__status--{{ doc.status }}">
+                            <mat-icon class="qual-card__status-icon">{{
+                              qualStatusIcons[doc.status]
+                            }}</mat-icon>
+                            {{ qualStatusLabels[doc.status] }}
+                          </span>
+                        </div>
+                      </div>
+
+                      @if (
+                        doc.status !== 'pending' &&
+                        (doc.series || doc.number || doc.issuedBy || doc.validFrom || doc.validTo)
+                      ) {
+                        <dl class="qual-card__details">
+                          @if (doc.series || doc.number) {
+                            <div>
+                              <dt>Серия / номер</dt>
+                              <dd>{{ doc.series }} {{ doc.number }}</dd>
+                            </div>
+                          }
+                          @if (doc.issuedBy) {
+                            <div>
+                              <dt>Кем выдан</dt>
+                              <dd>{{ doc.issuedBy }}</dd>
+                            </div>
+                          }
+                          @if (doc.validFrom || doc.validTo) {
+                            <div class="qual-expiry qual-expiry--{{ expiry(doc) }}">
+                              <dt>Срок действия</dt>
+                              <dd>
+                                <span class="qual-expiry__range"
+                                  >{{ doc.validFrom || '—' }} — {{ doc.validTo || '—' }}</span
+                                >
+                                @let label = expiryLabel(doc);
+                                @if (label) {
+                                  <span class="qual-expiry__badge">
+                                    <mat-icon class="qual-expiry__icon">schedule</mat-icon>
+                                    {{ label }}
+                                  </span>
+                                }
+                              </dd>
+                            </div>
+                          }
+                        </dl>
+                      }
+                      @if (doc.reviewComment) {
+                        <p class="qual-card__comment">{{ doc.reviewComment }}</p>
+                      }
+
+                      <div class="qual-card__actions">
+                        <button mat-stroked-button type="button" (click)="startReview(doc)">
+                          <mat-icon>fact_check</mat-icon>
+                          {{ reviewingDocId() === doc.id ? 'Свернуть' : 'Проверить' }}
+                        </button>
+                        <button
+                          mat-icon-button
+                          type="button"
+                          class="qual-card__remove"
+                          aria-label="Удалить документ"
+                          (click)="removeQualification(user.id, doc.id)"
+                        >
+                          <mat-icon>delete_outline</mat-icon>
+                        </button>
+                      </div>
+
+                      @if (reviewingDocId() === doc.id) {
+                        <form class="qual-review" (submit)="$event.preventDefault()">
+                          <div class="qual-review__row">
+                            <mat-form-field appearance="outline">
+                              <mat-label>Серия</mat-label>
+                              <input [formField]="reviewForm.series" matInput ngDefaultControl />
+                            </mat-form-field>
+                            <mat-form-field appearance="outline">
+                              <mat-label>Номер</mat-label>
+                              <input [formField]="reviewForm.number" matInput ngDefaultControl />
+                            </mat-form-field>
+                          </div>
+                          <mat-form-field appearance="outline">
+                            <mat-label>Кем выдан</mat-label>
+                            <input [formField]="reviewForm.issuedBy" matInput ngDefaultControl />
+                          </mat-form-field>
+                          <div class="qual-review__row">
+                            <mat-form-field appearance="outline">
+                              <mat-label>Действителен с</mat-label>
+                              <input
+                                [formField]="reviewForm.validFrom"
+                                matInput
+                                ngDefaultControl
+                                placeholder="дд.мм.гггг"
+                              />
+                            </mat-form-field>
+                            <mat-form-field appearance="outline">
+                              <mat-label>Действителен до</mat-label>
+                              <input
+                                [formField]="reviewForm.validTo"
+                                matInput
+                                ngDefaultControl
+                                placeholder="дд.мм.гггг"
+                              />
+                            </mat-form-field>
+                          </div>
+                          <mat-form-field appearance="outline">
+                            <mat-label>Комментарий</mat-label>
+                            <input
+                              [formField]="reviewForm.reviewComment"
+                              matInput
+                              ngDefaultControl
+                              placeholder="Например, причина отклонения"
+                            />
+                          </mat-form-field>
+                          <div class="qual-review__actions">
+                            <button
+                              mat-flat-button
+                              type="button"
+                              class="qual-review__approve"
+                              (click)="submitReview(user.id, doc.id, 'approved')"
+                            >
+                              <mat-icon>verified</mat-icon>
+                              Подтвердить
+                            </button>
+                            <button
+                              mat-stroked-button
+                              type="button"
+                              class="qual-review__reject"
+                              (click)="submitReview(user.id, doc.id, 'rejected')"
+                            >
+                              <mat-icon>block</mat-icon>
+                              Отклонить
+                            </button>
+                          </div>
+                        </form>
+                      }
+                    </li>
+                  }
+                </ul>
+              } @else {
+                <p class="user-orders__empty">Работник пока не загрузил документы.</p>
+              }
+            </section>
+
             <form class="user-bank" (submit)="$event.preventDefault(); saveBank(user.id)">
               <h3 class="user-card__section-title">Банковские реквизиты</h3>
               <mat-form-field appearance="outline">

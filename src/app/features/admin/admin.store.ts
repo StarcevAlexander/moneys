@@ -8,6 +8,9 @@ import {
   ManagedUser,
   NewOrderDraft,
   NewUserDraft,
+  QualificationDocument,
+  QualificationReviewDraft,
+  QualificationUpload,
   RegistrationDraft,
   UploadedFile,
   WorkerRating,
@@ -139,6 +142,62 @@ export class AdminStore {
   updatePhoto(userId: string, photo: UploadedFile): void {
     this._users.update((list) =>
       list.map((u) => (u.id === userId ? { ...u, documents: { ...u.documents, photo } } : u)),
+    );
+  }
+
+  // --- Документы доп. образования / допусков ---------------------------------
+
+  /** Работник загружает квалификационный документ — он уходит на проверку. */
+  addQualification(userId: string, upload: QualificationUpload): void {
+    const doc: QualificationDocument = {
+      id: crypto.randomUUID(),
+      title: upload.title.trim(),
+      file: upload.file,
+      status: 'pending',
+      uploadedAt: new Date().toISOString(),
+    };
+    this._users.update((list) =>
+      list.map((u) =>
+        u.id === userId ? { ...u, qualifications: [doc, ...(u.qualifications ?? [])] } : u,
+      ),
+    );
+  }
+
+  /** Удаление документа (работником — своего непроверенного, либо менеджером). */
+  removeQualification(userId: string, docId: string): void {
+    this._users.update((list) =>
+      list.map((u) =>
+        u.id === userId
+          ? { ...u, qualifications: (u.qualifications ?? []).filter((d) => d.id !== docId) }
+          : u,
+      ),
+    );
+  }
+
+  /** Менеджер проверяет документ: вносит реквизиты, срок действия и вердикт. */
+  reviewQualification(userId: string, docId: string, draft: QualificationReviewDraft): void {
+    this._users.update((list) =>
+      list.map((u) => {
+        if (u.id !== userId) {
+          return u;
+        }
+        const qualifications = (u.qualifications ?? []).map((d) =>
+          d.id === docId
+            ? {
+                ...d,
+                status: draft.status,
+                series: draft.series?.trim() || undefined,
+                number: draft.number?.trim() || undefined,
+                issuedBy: draft.issuedBy?.trim() || undefined,
+                validFrom: draft.validFrom?.trim() || undefined,
+                validTo: draft.validTo?.trim() || undefined,
+                reviewComment: draft.reviewComment?.trim() || undefined,
+                reviewedAt: new Date().toISOString(),
+              }
+            : d,
+        );
+        return { ...u, qualifications };
+      }),
     );
   }
 

@@ -1,4 +1,10 @@
-import { AdminOrderStatus, BankDetails, PassportData, WorkerRatingDraft } from './admin.models';
+import {
+  AdminOrderStatus,
+  BankDetails,
+  PassportData,
+  QualificationStatus,
+  WorkerRatingDraft,
+} from './admin.models';
 
 /** Ключи localStorage для админских данных. */
 export const ADMIN_USERS_STORAGE_KEY = 'moneys.admin.users';
@@ -99,6 +105,50 @@ export const PHOTO_SAVED_MESSAGE = 'Фото обновлено';
 /** Сообщения регистрации. */
 export const REGISTRATION_SUCCESS_MESSAGE = 'Регистрация завершена';
 export const REGISTRATION_DOCS_REQUIRED_MESSAGE = 'Загрузите все документы и фото';
+
+/** Предустановленные типы документов доп. образования / допусков. */
+export const QUALIFICATION_DOC_PRESETS: string[] = [
+  'Медицинская книжка',
+  'Права на погрузчик',
+  'Удостоверение стропальщика',
+  'Удостоверение сварщика',
+  'Удостоверение электромонтёра',
+  'Допуск к высотным работам',
+];
+
+/** Значение пункта «Другое» в списке типов документов. */
+export const QUALIFICATION_OTHER = 'Другое';
+
+/** Человекочитаемые подписи статусов проверки документа. */
+export const QUALIFICATION_STATUS_LABELS: Record<QualificationStatus, string> = {
+  pending: 'На проверке',
+  approved: 'Подтверждён',
+  rejected: 'Отклонён',
+};
+
+/** Иконки статусов проверки документа. */
+export const QUALIFICATION_STATUS_ICONS: Record<QualificationStatus, string> = {
+  pending: 'hourglass_top',
+  approved: 'verified',
+  rejected: 'cancel',
+};
+
+/** Сообщения по квалификационным документам. */
+export const QUALIFICATION_ADDED_MESSAGE = 'Документ отправлен на проверку';
+export const QUALIFICATION_REMOVED_MESSAGE = 'Документ удалён';
+export const QUALIFICATION_REVIEWED_MESSAGE = 'Документ проверен';
+export const QUALIFICATION_TITLE_REQUIRED_MESSAGE = 'Укажите тип документа';
+export const QUALIFICATION_FILE_REQUIRED_MESSAGE = 'Приложите фото документа';
+
+/** Пустой черновик проверки документа менеджером. */
+export const EMPTY_QUALIFICATION_REVIEW = {
+  series: '',
+  number: '',
+  issuedBy: '',
+  validFrom: '',
+  validTo: '',
+  reviewComment: '',
+};
 
 /** Границы шкалы оценки работника. */
 export const RATING_MIN = 1;
